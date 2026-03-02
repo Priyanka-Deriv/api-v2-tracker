@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deriv API V2 Live Team Tracker</title>
+<style>
+:root {
+  --bg: #f0f2f5; --bg-card: #fff; --bg-sidebar: #1a1a2e; --bg-header: #16213e;
+  --text: #1a1a2e; --text-sec: #6b7280; --text-light: #fff;
+  --border: #e5e7eb; --radius: 8px; --shadow: 0 1px 3px rgba(0,0,0,0.08);
+  --red: #ef4444; --orange: #f59e0b; --green: #22c55e; --blue: #3b82f6;
+  --purple: #8b5cf6; --pink: #ec4899; --teal: #14b8a6; --indigo: #6366f1;
+  --col-backlog: #94a3b8; --col-progress: #3b82f6; --col-blocked: #ef4444;
+  --col-review: #f59e0b; --col-done: #22c55e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; overflow:hidden; }
+
+/* Sidebar */
+.sidebar { width:240px; background:var(--bg-sidebar); color:var(--text-light); display:flex; flex-direction:column; flex-shrink:0; }
+.sidebar-logo { padding:20px; font-size:15px; font-weight:700; border-bottom:1px solid rgba(255,255,255,0.1); }
+.sidebar-logo span { color:#f59e0b; }
+.sidebar-nav { flex:1; padding:12px 0; overflow-y:auto; }
+.nav-section { padding:8px 20px; font-size:11px; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.4); margin-top:12px; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:10px 20px; font-size:13px; cursor:pointer; color:rgba(255,255,255,0.7); transition:all 0.15s; border-left:3px solid transparent; }
+.nav-item:hover { background:rgba(255,255,255,0.05); color:#fff; }
+.nav-item.active { background:rgba(255,255,255,0.1); color:#fff; border-left-color:#f59e0b; }
+.nav-item .badge { margin-left:auto; background:rgba(255,255,255,0.15); padding:2px 8px; border-radius:10px; font-size:11px; }
+.nav-item .icon { width:18px; text-align:center; }
+.sidebar-footer { padding:16px 20px; border-top:1px solid rgba(255,255,255,0.1); font-size:11px; color:rgba(255,255,255,0.3); }
+
+/* Main */
+.main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.header { background:var(--bg-card); border-bottom:1px solid var(--border); padding:16px 24px; display:flex; align-items:center; gap:16px; flex-shrink:0; }
+.header h1 { font-size:18px; font-weight:600; }
+.header-actions { margin-left:auto; display:flex; gap:8px; align-items:center; }
+
+/* Buttons */
+.btn { padding:7px 14px; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--border); background:var(--bg-card); color:var(--text); transition:all 0.15s; display:inline-flex; align-items:center; gap:6px; }
+.btn:hover { background:#f3f4f6; }
+.btn-primary { background:var(--blue); color:#fff; border-color:var(--blue); }
+.btn-primary:hover { background:#2563eb; }
+.btn-danger { background:var(--red); color:#fff; border-color:var(--red); }
+.btn-danger:hover { background:#dc2626; }
+.btn-sm { padding:4px 10px; font-size:12px; }
+.btn-icon { padding:6px 8px; }
+
+/* Search bar */
+.search-bar { display:flex; align-items:center; gap:8px; background:#f3f4f6; border-radius:6px; padding:6px 12px; flex:1; max-width:320px; }
+.search-bar input { border:none; background:transparent; outline:none; font-size:13px; flex:1; color:var(--text); }
+
+/* Filter bar */
+.filter-bar { background:var(--bg-card); border-bottom:1px solid var(--border); padding:10px 24px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; flex-shrink:0; }
+.filter-bar select { padding:5px 10px; border:1px solid var(--border); border-radius:5px; font-size:12px; background:#fff; color:var(--text); }
+.filter-bar label { font-size:12px; color:var(--text-sec); }
+.filter-bar .filter-group { display:flex; align-items:center; gap:4px; }
+.filter-clear { font-size:12px; color:var(--blue); cursor:pointer; margin-left:8px; }
+.filter-clear:hover { text-decoration:underline; }
+
+/* Content area */
+.content { flex:1; overflow:auto; padding:20px 24px; }
+
+/* KPI row */
+.kpi-row { display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:20px; }
+.kpi-card { background:var(--bg-card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); text-align:center; }
+.kpi-card .kpi-val { font-size:28px; font-weight:700; }
+.kpi-card .kpi-label { font-size:11px; color:var(--text-sec); text-transform:uppercase; letter-spacing:0.5px; margin-top:4px; }
+.kpi-card.backlog .kpi-val { color:var(--col-backlog); }
+.kpi-card.progress .kpi-val { color:var(--col-progress); }
+.kpi-card.blocked .kpi-val { color:var(--col-blocked); }
+.kpi-card.review .kpi-val { color:var(--col-review); }
+.kpi-card.done .kpi-val { color:var(--col-done); }
+
+/* Kanban */
+.kanban { display:flex; gap:12px; height:calc(100% - 100px); min-height:400px; }
+.kanban-col { flex:1; min-width:220px; background:#f8f9fb; border-radius:var(--radius); display:flex; flex-direction:column; }
+.kanban-col-header { padding:12px 14px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; border-bottom:2px solid transparent; flex-shrink:0; }
+.kanban-col-header .dot { width:8px; height:8px; border-radius:50%; }
+.kanban-col-header .count { margin-left:auto; background:rgba(0,0,0,0.08); padding:1px 7px; border-radius:10px; font-size:11px; font-weight:500; }
+.kanban-col[data-status="Backlog"] .kanban-col-header { border-bottom-color:var(--col-backlog); }
+.kanban-col[data-status="In Progress"] .kanban-col-header { border-bottom-color:var(--col-progress); }
+.kanban-col[data-status="Blocked"] .kanban-col-header { border-bottom-color:var(--col-blocked); }
+.kanban-col[data-status="In Review"] .kanban-col-header { border-bottom-color:var(--col-review); }
+.kanban-col[data-status="Done"] .kanban-col-header { border-bottom-color:var(--col-done); }
+.kanban-cards { flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:8px; }
+.kanban-cards.drag-over { background:rgba(59,130,246,0.06); }
+
+/* Cards */
+.card { background:var(--bg-card); border-radius:6px; padding:12px; box-shadow:0 1px 2px rgba(0,0,0,0.06); cursor:grab; border-left:3px solid transparent; transition:box-shadow 0.15s; position:relative; }
+.card:hover { box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+.card.dragging { opacity:0.5; }
+.card .card-title { font-size:13px; font-weight:500; margin-bottom:6px; line-height:1.4; }
+.card .card-title[contenteditable="true"] { outline:2px solid var(--blue); border-radius:3px; padding:2px 4px; margin:-2px -4px; background:#f0f7ff; }
+.card .card-meta { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.card .card-meta > * { font-size:11px; }
+.card .tag { display:inline-flex; padding:2px 7px; border-radius:4px; font-size:10px; font-weight:500; }
+.card .tag-type { background:#ede9fe; color:#6d28d9; }
+.card .tag-priority-high { background:#fef2f2; color:#dc2626; }
+.card .tag-priority-medium { background:#fffbeb; color:#d97706; }
+.card .tag-priority-low { background:#f0fdf4; color:#16a34a; }
+.card .tag-team { background:#f0f9ff; color:#0369a1; }
+.card .card-owner { color:var(--text-sec); }
+.card .card-notes { font-size:12px; color:var(--text-sec); margin-top:6px; line-height:1.4; max-height:40px; overflow:hidden; }
+.card .card-notes[contenteditable="true"] { outline:2px solid var(--blue); border-radius:3px; padding:2px 4px; max-height:none; background:#f0f7ff; }
+.card .card-actions { position:absolute; top:8px; right:8px; display:none; gap:4px; }
+.card:hover .card-actions { display:flex; }
+.card .card-actions button { background:none; border:none; cursor:pointer; padding:2px; font-size:14px; color:var(--text-sec); border-radius:3px; }
+.card .card-actions button:hover { background:#f3f4f6; color:var(--text); }
+.card .card-source { position:absolute; top:8px; right:8px; font-size:10px; color:var(--text-sec); opacity:0.6; }
+
+/* Person view */
+.person-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+.person-section { background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow); }
+.person-header { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; }
+.person-header .avatar { width:32px; height:32px; border-radius:50%; background:var(--indigo); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; }
+.person-header .name { font-size:14px; font-weight:600; }
+.person-header .count { margin-left:auto; font-size:12px; color:var(--text-sec); }
+.person-items { padding:8px; max-height:400px; overflow-y:auto; }
+.person-item { padding:10px 12px; border-radius:6px; margin-bottom:6px; border-left:3px solid var(--col-backlog); background:#fafafa; font-size:13px; }
+.person-item.status-in-progress { border-left-color:var(--col-progress); }
+.person-item.status-blocked { border-left-color:var(--col-blocked); }
+.person-item.status-in-review { border-left-color:var(--col-review); }
+.person-item.status-done { border-left-color:var(--col-done); }
+.person-item .pi-title { font-weight:500; margin-bottom:4px; }
+.person-item .pi-meta { font-size:11px; color:var(--text-sec); display:flex; gap:8px; }
+
+/* Type view */
+.type-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+.type-section { background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow); }
+.type-header { padding:14px 16px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:10px; font-size:14px; font-weight:600; }
+.type-items { padding:8px; max-height:400px; overflow-y:auto; }
+
+/* Team view */
+.team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+.team-section { background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+.team-header { padding:14px 16px; display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--border); }
+.team-color-bar { width:4px; height:40px; border-radius:2px; flex-shrink:0; }
+.team-items { padding:8px; max-height:320px; overflow-y:auto; }
+
+/* Scratchpad */
+.scratchpad { display:flex; gap:16px; height:calc(100% - 20px); }
+.sp-sidebar { width:220px; background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow); display:flex; flex-direction:column; flex-shrink:0; overflow:hidden; }
+.sp-team-list { flex:1; overflow-y:auto; }
+.sp-team-item { padding:10px 16px; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:8px; border-left:3px solid transparent; }
+.sp-team-item:hover { background:#f3f4f6; }
+.sp-team-item.active { background:#eff6ff; border-left-color:var(--blue); font-weight:500; }
+.sp-team-item .sp-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sp-team-item .sp-badge { margin-left:auto; font-size:11px; color:var(--text-sec); }
+.sp-main { flex:1; background:var(--bg-card); border-radius:var(--radius); box-shadow:var(--shadow); display:flex; flex-direction:column; overflow:hidden; }
+.sp-main-header { padding:16px 20px; border-bottom:1px solid var(--border); }
+.sp-main-header h2 { font-size:16px; font-weight:600; }
+.sp-main-header .sp-poc { font-size:12px; color:var(--text-sec); margin-top:2px; }
+.sp-tabs { display:flex; border-bottom:1px solid var(--border); }
+.sp-tab { padding:10px 20px; font-size:13px; cursor:pointer; border-bottom:2px solid transparent; color:var(--text-sec); transition:all 0.15s; }
+.sp-tab:hover { color:var(--text); }
+.sp-tab.active { color:var(--blue); border-bottom-color:var(--blue); font-weight:500; }
+.sp-tab .tab-count { margin-left:4px; font-size:11px; background:#e5e7eb; padding:1px 6px; border-radius:8px; }
+.sp-content { flex:1; overflow-y:auto; padding:16px 20px; }
+.sp-item { display:flex; gap:10px; padding:10px 12px; border-radius:6px; background:#fafafa; margin-bottom:8px; align-items:flex-start; }
+.sp-item .sp-item-text { flex:1; font-size:13px; line-height:1.5; }
+.sp-item .sp-item-text[contenteditable="true"] { outline:2px solid var(--blue); border-radius:3px; padding:2px 4px; background:#f0f7ff; }
+.sp-item .sp-item-del { cursor:pointer; color:var(--text-sec); font-size:14px; padding:2px; opacity:0; transition:opacity 0.15s; flex-shrink:0; }
+.sp-item:hover .sp-item-del { opacity:1; }
+.sp-item .sp-item-del:hover { color:var(--red); }
+.sp-add-row { display:flex; gap:8px; margin-top:12px; }
+.sp-add-row input { flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; }
+
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; display:flex; align-items:center; justify-content:center; }
+.modal-overlay.hidden { display:none; }
+.modal { background:var(--bg-card); border-radius:12px; width:560px; max-width:90vw; max-height:85vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.2); }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-header h2 { font-size:16px; font-weight:600; }
+.modal-close { background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-sec); padding:4px; }
+.modal-body { padding:20px 24px; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:8px; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:13px; font-weight:500; margin-bottom:6px; color:var(--text); }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:8px 12px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; }
+.form-group textarea { resize:vertical; min-height:80px; }
+
+/* Transcript modal */
+.modal-wide { width:700px; }
+.transcript-area { width:100%; min-height:200px; padding:12px; border:1px solid var(--border); border-radius:6px; font-size:13px; font-family:inherit; resize:vertical; }
+.extracted-items { margin-top:16px; }
+.extracted-item { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#f8f9fb; border-radius:6px; margin-bottom:8px; }
+.extracted-item input[type="checkbox"] { flex-shrink:0; }
+.extracted-item .ei-title { flex:1; font-size:13px; }
+.extracted-item .ei-meta { font-size:11px; color:var(--text-sec); }
+
+/* Merge mode */
+.merge-mode .card { cursor:pointer; }
+.merge-mode .card.selected-merge { outline:2px solid var(--purple); background:#faf5ff; }
+.merge-bar { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--bg-sidebar); color:#fff; padding:12px 24px; border-radius:10px; box-shadow:0 4px 20px rgba(0,0,0,0.3); display:flex; align-items:center; gap:16px; z-index:50; font-size:13px; }
+.merge-bar.hidden { display:none; }
+.merge-bar button { padding:6px 14px; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer; border:none; }
+.merge-bar .btn-merge { background:var(--purple); color:#fff; }
+.merge-bar .btn-cancel-merge { background:rgba(255,255,255,0.15); color:#fff; }
+
+/* Utility */
+.hidden { display:none !important; }
+
+/* Sync styles */
+.nav-sync { position:relative; }
+.sync-badge { font-size:10px !important; background:rgba(59,130,246,0.3) !important; color:#93c5fd !important; }
+.sync-source-card { background:#f8f9fb; border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:10px; }
+.sync-source-card h4 { font-size:13px; font-weight:600; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.sync-source-card .sync-channels { font-size:12px; color:var(--text-sec); line-height:1.6; }
+.sync-source-card .sync-tag { display:inline-block; background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:4px; font-size:11px; margin:2px 2px; }
+.sync-source-card .sync-tag-email { background:#fef3c7; color:#92400e; }
+.sync-source-card .sync-tag-file { background:#d1fae5; color:#065f46; }
+.sync-status-row { display:flex; align-items:center; gap:8px; padding:6px 0; font-size:12px; }
+.sync-status-row .sync-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sync-dot.connected { background:#22c55e; }
+.sync-dot.pending { background:#f59e0b; }
+.sync-dot.new { background:#94a3b8; }
+.sync-info-banner { background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px 14px; margin-bottom:14px; font-size:12px; color:#1e40af; line-height:1.5; }
+.text-sec { color:var(--text-sec); }
+.empty-state { text-align:center; padding:40px; color:var(--text-sec); font-size:14px; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#d1d5db; border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:#9ca3af; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">Deriv API <span>V2</span> Tracker</div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Views</div>
+    <div class="nav-item active" data-view="kanban"><span class="icon">◫</span> Kanban Board</div>
+    <div class="nav-item" data-view="person"><span class="icon">👤</span> By Person</div>
+    <div class="nav-item" data-view="type"><span class="icon">◈</span> By Type</div>
+    <div class="nav-item" data-view="team"><span class="icon">🏢</span> By Team</div>
+    <div class="nav-item" data-view="scratchpad"><span class="icon">📋</span> Team Scratchpad</div>
+    <div class="nav-section">Actions</div>
+    <div class="nav-item" id="nav-add"><span class="icon">＋</span> Add Item</div>
+    <div class="nav-item" id="nav-transcript"><span class="icon">🎙</span> Parse Transcript</div>
+    <div class="nav-item" id="nav-merge"><span class="icon">⊕</span> Merge Mode</div>
+    <div class="nav-item" id="nav-export"><span class="icon">↓</span> Export JSON</div>
+    <div class="nav-item" id="nav-import"><span class="icon">↑</span> Import JSON</div>
+    <div class="nav-section">Sync Sources</div>
+    <div class="nav-item nav-sync" id="nav-sync-slack"><span class="icon">💬</span> Sync Slack <span class="badge sync-badge" id="slack-sync-badge">7 ch</span></div>
+    <div class="nav-item nav-sync" id="nav-sync-email"><span class="icon">📧</span> Sync Email <span class="badge sync-badge" id="email-sync-badge">Zoom</span></div>
+    <div class="nav-item nav-sync" id="nav-sync-files"><span class="icon">📁</span> Sync Files <span class="badge sync-badge" id="files-sync-badge">75</span></div>
+  </nav>
+  <div class="sidebar-footer">v15 · P. Shrivastava · Mar 2026</div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <!-- Header -->
+  <div class="header">
+    <h1 id="view-title">Kanban Board</h1>
+    <div class="search-bar">
+      <span>🔍</span>
+      <input type="text" id="search-input" placeholder="Search items…">
+    </div>
+    <div class="header-actions">
+      <span id="sync-status" style="font-size:11px;color:var(--text-sec);">Last sync: Mar 2, 2026 3:30 PM</span>
+      <button class="btn" id="btn-transcript">📝 Parse Transcript</button>
+      <button class="btn btn-primary" id="btn-add">＋ Add Item</button>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>Owner:</label>
+      <select id="filter-owner"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Team:</label>
+      <select id="filter-team"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Type:</label>
+      <select id="filter-type"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Priority:</label>
+      <select id="filter-priority"><option value="">All</option><option>High</option><option>Medium</option><option>Low</option></select>
+    </div>
+    <span class="filter-clear" id="filter-clear">Clear filters</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content" id="content-area"></div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay hidden" id="modal-add">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-add-title">Add New Item</h2>
+      <button class="modal-close" onclick="closeModal('modal-add')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" id="field-title" placeholder="What needs to be done?">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Owner</label>
+          <select id="field-owner"></select>
+        </div>
+        <div class="form-group">
+          <label>Team</label>
+          <select id="field-team"></select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Type</label>
+          <select id="field-type"></select>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="field-status"><option>Backlog</option><option>In Progress</option><option>Blocked</option><option>In Review</option><option>Done</option></select>
+        </div>
+        <div class="form-group">
+          <label>Priority</label>
+          <select id="field-priority"><option>Medium</option><option>High</option><option>Low</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea id="field-notes" placeholder="Additional context, links, blockers…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-add')">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-item">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transcript Modal -->
+<div class="modal-overlay hidden" id="modal-transcript">
+  <div class="modal modal-wide">
+    <div class="modal-header">
+      <h2>Parse Meeting Transcript</h2>
+      <button class="modal-close" onclick="closeModal('modal-transcript')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Paste meeting transcript or notes below:</label>
+        <textarea class="transcript-area" id="transcript-text" placeholder="Paste transcript text here…&#10;&#10;The parser will look for action items, decisions, and tasks. It recognises patterns like:&#10;• &quot;[Name] will do X&quot;&#10;• &quot;Action: do Y&quot;&#10;• &quot;TODO: Z&quot;&#10;• &quot;Decision: W&quot;&#10;• &quot;[Name] to follow up on…&quot;"></textarea>
+      </div>
+      <button class="btn btn-primary" id="btn-parse" style="margin-bottom:16px;">Extract Action Items</button>
+      <div class="extracted-items" id="extracted-items"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-transcript')">Cancel</button>
+      <button class="btn btn-primary hidden" id="btn-add-extracted">Add Selected Items</button>
+    </div>
+  </div>
+</div>
+
+<!-- Merge bar -->
+<div class="merge-bar hidden" id="merge-bar">
+  <span id="merge-count">0 items selected</span>
+  <button class="btn-merge" id="btn-do-merge">Merge Selected</button>
+  <button class="btn-cancel-merge" id="btn-cancel-merge">Cancel</button>
+</div>
+
+<!-- Hidden file input for import -->
+<input type="file" id="import-file" accept=".json" style="display:none">
+
+<!-- Sync Modal -->
+<div class="modal-overlay hidden" id="sync-modal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <h2 id="sync-modal-title">Sync Sources</h2>
+      <button class="btn-close" id="sync-modal-close">&times;</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+      <div id="sync-content"></div>
+    </div>
+    <div class="modal-footer" style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <span id="sync-status-text" style="font-size:12px;color:var(--text-sec);">Ready to sync</span>
+      <button class="btn btn-primary" id="sync-modal-action" style="display:none;">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================== CONFIG =====================
+const STATUSES = ['Backlog','In Progress','Blocked','In Review','Done'];
+const TYPES = ['Action Item','Product Decision','Review','Bug/Fix','Documentation','External Request'];
+const PRIORITIES = ['High','Medium','Low'];
+
+const TEAMS = [
+  {name:'Core API Team',poc:'Ashkan / Priyanka',color:'#3b82f6',status:'active'},
+  {name:'Auth / Backend',poc:'Kirill, Lepika',color:'#6366f1',status:'active'},
+  {name:'Design (Figma)',poc:'Manros + Malaysia',color:'#ec4899',status:'active'},
+  {name:'HubSpot / Marketing',poc:'Abheeshta, Manahel',color:'#f59e0b',status:'active'},
+  {name:'BI / Data',poc:'Prakash, Guru, Harley',color:'#14b8a6',status:'active'},
+  {name:'Compliance / Legal',poc:'Azita',color:'#ef4444',status:'active'},
+  {name:'Partners / Biz Dev',poc:'Ying Shan, Rakshit',color:'#8b5cf6',status:'active'},
+  {name:'Support (Intercom)',poc:'Dmitry',color:'#22c55e',status:'active'},
+  {name:'Country Managers',poc:'Regional (BR/KE/LK)',color:'#f97316',status:'active'},
+  {name:'DevOps / IT Ops',poc:'Shriv',color:'#64748b',status:'active'},
+  {name:'SEO',poc:'TBD',color:'#a855f7',status:'not-engaged'},
+  {name:'Translations',poc:'TBD',color:'#06b6d4',status:'not-engaged'},
+  {name:'Marketing',poc:'TBD',color:'#d946ef',status:'not-engaged'},
+  {name:'Content / Docs',poc:'TBD',color:'#84cc16',status:'not-engaged'},
+  {name:'Finance / Revenue',poc:'TBD',color:'#eab308',status:'not-engaged'},
+];
+
+const MEMBERS = [
+  'Priyanka','Ashkan','Muhammad','Manros','Ahmed','Kirill','Lepika','Abheeshta',
+  'Manahel','Prakash','Guru','Harley','Azita','Ying Shan','Rakshit','Dmitry','Shriv',
+  'Unassigned'
+];
+
+const STORAGE_KEY = 'deriv_apiv2_tracker';
+const SCRATCHPAD_KEY = 'deriv_apiv2_scratchpad';
+
+// ===================== STATE =====================
+let items = [
+  {
+    "id": 1,
+    "title": "Fix account switcher on template project",
+    "owner": "Muhammad Ahmed",
+    "type": "Bug/Fix",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Core API Team",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Code is on staging, needs to be updated in template project. Test and release once merged.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 2,
+    "title": "Test 5% markup on .be and .me environments",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Core API Team",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "5% markup working on staging. Need to verify on B and ME environments before production.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 3,
+    "title": "Coordinate with Kirill to merge 5% markup to production",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Frontend update depends on Kirill's backend PR being deployed first.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 4,
+    "title": "Finalize and send developer communication email",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "HubSpot / Marketing",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "HTML and simplified versions prepared. Include new email ID requirement for account creation. Needs Ashkan's line-by-line review before sending.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 5,
+    "title": "Deprioritize .me and .be domains \u2014 focus on .com",
+    "owner": "Ashkan",
+    "type": "Product Decision",
+    "status": "Done",
+    "priority": "High",
+    "team": "Core API Team",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "Ongoing technical problems with .me and .be. Post note in team chat confirming focus on .com.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 6,
+    "title": "Lipika to start Connected Apps on trader's dashboard",
+    "owner": "Lipika",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "Connected Apps first, API token tasks to follow. Ashkan to share task list for Lipika's team.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 7,
+    "title": "Push back on mandatory 2FA for PAT creation",
+    "owner": "Ashkan",
+    "type": "Product Decision",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "Poor UX concern. Park the requirement for later discussion with Security team.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 8,
+    "title": "Investigate app_id trade-capture gap in OptionDB",
+    "owner": "Eswara Battula",
+    "type": "Bug/Fix",
+    "status": "Blocked",
+    "priority": "High",
+    "team": "BI / Data",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "V2 app IDs (alphanumeric) not appearing in OptionDB. Legacy numeric app_id showing instead. Eswara to confirm with Data Engineering how V2 app IDs are persisted. BLOCKER: Cannot do post-migration reporting without this fix.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 9,
+    "title": "Escalate missing V2 app_id in OptionDB to JB",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Core API Team",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "Post in channel summarizing that v2 app IDs are not present in OptionDB trade data. Tag JB, CC Priyanka and Eswara.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 10,
+    "title": "Add detailed OptionDB query examples to escalation thread",
+    "owner": "Eswara Battula",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "High",
+    "team": "BI / Data",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "Reply in thread with sample queries, tables, examples showing legacy numeric app_id and missing v2 identifier.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 11,
+    "title": "Remove redundant X button from UI",
+    "owner": "Priyanka",
+    "type": "Bug/Fix",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Design (Figma)",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "X button was not in approved design. Approve and communicate removal to implementing team.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 12,
+    "title": "Fix permissions list not reflecting requested permissions",
+    "owner": "Priyanka",
+    "type": "Bug/Fix",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "Permissions list mismatch. Investigate and provide fix or change request.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 13,
+    "title": "Update dev documentation: distinguish app ID from client_id",
+    "owner": "Ashkan",
+    "type": "Documentation",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "Internal documentation must clearly distinguish app ID (alphanumeric) from client_id parameter used with core.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 14,
+    "title": "Provide test account/client IDs to Eswara for trade validation",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "BI / Data",
+    "source": "Overseer - Zoom Meeting (Mar 2)",
+    "notes": "Send correct test account details to validate trades and confirm what identifier appears in OptionDB.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 15,
+    "title": "Clarify decision: cashier/P2P APIs remain internal",
+    "owner": "Ashkan",
+    "type": "Product Decision",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Write comment in channel clarifying decision not to expose cashier and P2P APIs externally. Address queries from Sephan and Rakshish.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 16,
+    "title": "Share PAT task list for Lipika's team",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Auth / Backend",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Include PAT creation and revocation inside Trader's Hub. Connected Apps implementation first.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 17,
+    "title": "Manros: finalize app builder design review",
+    "owner": "Manros",
+    "type": "Review",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Design (Figma)",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Complete final review so Nigel can pick it up this week.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 18,
+    "title": "Coordinate affiliate tagging for March commissions",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Partners / Biz Dev",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Coordinate with Kirill and relevant teams to finalize when affiliate tagging can be added for partners.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 19,
+    "title": "Coordinate with Kirill to provide details to Govi",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Auth / Backend",
+    "source": "Zoom - API Design & FE Updates (Mar 2)",
+    "notes": "Required details for commission calculation.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 20,
+    "title": "Prepare sunset date communication email",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "HubSpot / Marketing",
+    "source": "Meeting - AN-PS (Feb 25)",
+    "notes": "Coordinate setup with Manahil in HubSpot. Email needs proofreading by Ashkan, Rakshit, Prakash, and Azita before sending.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 21,
+    "title": "Follow up with Aline (compliance) on required links",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Compliance / Legal",
+    "source": "Meeting - AN-PS (Feb 25)",
+    "notes": "Get required links and update as needed for compliance requirements.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 22,
+    "title": "Remove payment agent option from legacy API signup",
+    "owner": "Muhammad Ahmed",
+    "type": "Action Item",
+    "status": "In Review",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Meeting - AM-PS (Feb 24)",
+    "notes": "Keep only affiliate option. Priyanka to test login and signup flow after changes. Push to production when ready.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 23,
+    "title": "Add TNC to current dashboard before 5% markup push",
+    "owner": "Manros",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Design (Figma)",
+    "source": "Meeting - API Design & FE Updates (Feb 25)",
+    "notes": "New terms and conditions to be added to current dashboard. Must be done when 5% markup is pushed.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 24,
+    "title": "Implement email notification on app registration",
+    "owner": "Backend team",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Auth / Backend",
+    "source": "Meeting - API Design & FE Updates (Feb 25)",
+    "notes": "When new app is registered, email with T&C sent to user. Triggered on app creation event. Priyanka to coordinate with Kirill to identify the event.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 25,
+    "title": "Remove AI disclaimer from V2",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "Low",
+    "team": "Compliance / Legal",
+    "source": "Meeting - API Design & FE Updates (Feb 25)",
+    "notes": "Ashkan requested removal. Priyanka to convey to compliance and handle.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 26,
+    "title": "Update OAuth consent page content and design",
+    "owner": "Muhammad Ahmed",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Low",
+    "team": "Core API Team",
+    "source": "Meeting - API Design & FE Updates (Feb 25)",
+    "notes": "Minor change. Not blocking but needs coordination with Lepika/Swissen/Aizat. New text provided, Manros creating new design.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 27,
+    "title": "V2 commission calculation: exclude app markup to prevent overpayment",
+    "owner": "Ying Shan",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "High",
+    "team": "Partners / Biz Dev",
+    "source": "Meeting - Commissions (Feb 24)",
+    "notes": "Remind Govi to ensure V2 option commission calculations exclude app markup amount. Critical to avoid overpaying partners.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 28,
+    "title": "Check JB validation for markup values above 3%",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Meeting - Commissions (Feb 24)",
+    "notes": "Message JP to double check if validation would reject markup/commission values above 3% before proceeding with 5% update.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 29,
+    "title": "Schedule follow-up with Tristan and Govi on partner commissions",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Partners / Biz Dev",
+    "source": "Meeting - Commissions (Feb 24)",
+    "notes": "Assign responsibility and coordinate calculation/handling of partner commissions for V2. Need to finalize within 1-2 weeks.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 30,
+    "title": "Talk to Bilal about linking Deriv accounts to partner accounts",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Partners / Biz Dev",
+    "source": "Meeting - Commissions (Feb 24)",
+    "notes": "Users need universal identity for dev portal and partner site. Will help solve payment-related issues.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 31,
+    "title": "Confirm V2 captures all commission/markup data per trade",
+    "owner": "Kok (JB)",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Meeting - Commissions (Feb 24)",
+    "notes": "Double check that V2 records all necessary commission/markup data and no validation prevents values above 3%.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 32,
+    "title": "Cloudflare configuration for V2-enabled country routing",
+    "owner": "Muhammad Ahmed",
+    "type": "Action Item",
+    "status": "Blocked",
+    "priority": "High",
+    "team": "DevOps / IT Ops",
+    "source": "Meeting - MA-PS (Feb 24)",
+    "notes": "V2 users need manual redirect to legacy API to see banner and sign up. Tag Amam to prioritize. BLOCKER: Waiting on Amam's effort estimate.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 33,
+    "title": "Add TNC checkbox per app in registration flow",
+    "owner": "Manros",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Design (Figma)",
+    "source": "Meeting - Manros-PS (Feb 25)",
+    "notes": "Required checkbox for T&C acceptance during app registration. Apply to both beta dashboard and new dashboard. Per-app, not per-user.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 34,
+    "title": "Provide legacy API link description to Muhammad",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "Done",
+    "priority": "Low",
+    "team": "Core API Team",
+    "source": "Meeting - MA-PS (Feb 25)",
+    "notes": "One-liner description for Legacy API link with external link icon. Muhammad to incorporate into PR.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 35,
+    "title": "Disable Telegram channel public discussions",
+    "owner": "Ashkan",
+    "type": "Product Decision",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Support (Intercom)",
+    "source": "Meeting - AN-PS (Feb 25)",
+    "notes": "Direct users to submit tickets for questions. Handle inquiries privately. Agreed to consult with Varun on communication strategy.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 36,
+    "title": "Coordinate release with Roanoke \u2014 all traffic to legacy-api.dev.com",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "Done",
+    "priority": "High",
+    "team": "Core API Team",
+    "source": "Meeting - AN-PS (Feb 25)",
+    "notes": "Unified release strategy. All traffic goes to legacy-api.dev.com initially.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 37,
+    "title": "Point new signups to developers.deriv.com once stable",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Meeting - AN-PS (Feb 25)",
+    "notes": "After confidence in new setup (Thursday/Friday or when stable). Coordinate with deriv.com team.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 38,
+    "title": "Kirill: provide eventbus endpoints for app state replication",
+    "owner": "Kirill",
+    "type": "Action Item",
+    "status": "Done",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Slack - #task_apiv2_markupcommissions",
+    "notes": "Endpoints shared: devhub.app_created.v1, devhub.app_updated.v1. Data to be provided to Govi.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 39,
+    "title": "Provide data to Govi for commission calculation",
+    "owner": "Kirill / Ying Shan",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Slack - #task_apiv2_markupcommissions",
+    "notes": "Priyanka asked Kirill and Ying Shan to provide data to Govi.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 40,
+    "title": "Handle partner complaints about 5% rollout via direct calls",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "High",
+    "team": "Partners / Biz Dev",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "Prepare responses and join partner calls. Confirm P2P signup support in messaging.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 41,
+    "title": "Octomind test integration for DAPI-905",
+    "owner": "Bertrand",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Slack - #task_api_v2_website",
+    "notes": "Bertrand working on Octomind test integration.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 42,
+    "title": "Fix staging URLs for deriv.be/deriv.me",
+    "owner": "Matin",
+    "type": "Bug/Fix",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Slack - #task_api_v2_website",
+    "notes": "Ongoing issues with staging URLs. Now deprioritized per today's decision to focus on .com.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 43,
+    "title": "Fix CNAME/redirect issues",
+    "owner": "Prince",
+    "type": "Bug/Fix",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "DevOps / IT Ops",
+    "source": "Slack - #task_api_v2_website",
+    "notes": "CNAME and redirect issues being addressed.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 44,
+    "title": "Design migration banner and dashboard",
+    "owner": "Manros",
+    "type": "Action Item",
+    "status": "In Progress",
+    "priority": "Medium",
+    "team": "Design (Figma)",
+    "source": "Slack - #task_api_v2_website",
+    "notes": "Migration banner design for developers.deriv.com.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 45,
+    "title": "Review Priyanka's announcement email line by line",
+    "owner": "Ashkan",
+    "type": "Review",
+    "status": "Backlog",
+    "priority": "High",
+    "team": "Core API Team",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "Return feedback/approval on HTML and simplified versions of the Rediff API announcement email.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 46,
+    "title": "JP to review trade-capture path for testing app_id",
+    "owner": "JP",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "High",
+    "team": "Auth / Backend",
+    "source": "Zoom - Daily Catchup (Mar 2)",
+    "notes": "Dependency: Assessment of options trade-capture for app_id (testing app) and remediation plan.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 47,
+    "title": "Duplicate account policy: communicate SOP changes",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Support (Intercom)",
+    "source": "Slack - #api_customer_support",
+    "notes": "Discussions with Ashkan, Dmitry about duplicate account policy for API developers. SOP changes needed for V1 vs V2 ticket routing.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 48,
+    "title": "Set up Intercom inbox automation for api-support@deriv.com",
+    "owner": "Dmitry",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Support (Intercom)",
+    "source": "Slack - #api_customer_support",
+    "notes": "Automate API support ticket routing.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 49,
+    "title": "Send first incentive communication to top 50 developers",
+    "owner": "Priyanka",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "High",
+    "team": "HubSpot / Marketing",
+    "source": "Meeting - AN-PS (Feb 25)",
+    "notes": "V1 total + 20% on V2. Target V2-enabled countries. Separate communication to all developers on Monday.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 50,
+    "title": "Prepare timeline for 5% markup revert to 3%",
+    "owner": "Ashkan",
+    "type": "Action Item",
+    "status": "Backlog",
+    "priority": "Medium",
+    "team": "Core API Team",
+    "source": "Meeting - Commissions (Feb 24)",
+    "notes": "5% through March or April, then revert to 3%. Need clear timeline communicated to partners.",
+    "created": "2026-03-02"
+  },
+  {
+    "id": 51,
+    "title": "Update documentation: make 5% markup commission more visible",
+    "owner": "Priyanka",
+    "type": "Documentation",
+    "status": "Backlog",
+    "priority": "Low",
+    "team": "Core API Team",
+    "source": "Meeting - AN-PS (Feb 23)",
+    "notes": "Update the documentation as discussed to highlight the 5% markup commission.",
+    "created": "2026-03-02"
+  }
+];
+let nextId = 1;
+let currentView = 'kanban';
+let mergeMode = false;
+let mergeSelected = new Set();
+let scratchpadData = {
+  "Core API Team": {
+    questions: ["Should we support .me and .be or fully deprioritize?","When will new signups be pointed to developers.deriv.com?","What is the timeline for 5% markup revert to 3%?"],
+    decisions: ["Deprioritize .me and .be — focus on .com","Cashier/P2P APIs remain internal, not exposed externally","Push back on mandatory 2FA for PAT creation (UX concern)","5% markup live as of Mar 2 — revert to 3% in April"],
+    dependencies: ["JB: Store V2 app_id (alphanumeric) in OptionDB","Kirill: Backend PR for 5% markup to production","Ahmed: Account switcher fix on template project","JP: Trade-capture path review for testing app_id"],
+    notes: ["Unified release strategy: all traffic to legacy-api.dev.com first","Developers cannot migrate V1→V2 while retaining V1 access","V2 app IDs are alphanumeric, legacy uses numeric IDs"]
+  },
+  "BI / Data": {
+    questions: ["How are V2 app IDs persisted in trading data tables?","Is markup recorded for alphanumeric app IDs?","Which column maps to V2 app identifier in OptionDB?"],
+    decisions: ["Post-migration performance measured by trading KPIs (traders, trades, volume, P&L, markup) not signups","Legacy numeric app_id in OptionDB cannot be used for V2 reporting"],
+    dependencies: ["Data Engineering: Confirm V2 app ID persistence","Core team (Ronak): Column mapping guidance and backfill if needed","JB: Fix OptionDB to expose V2 app identifier"],
+    notes: ["Eswara investigating data capture gaps","Planned KPIs: number of traders, trades, volume, P&L, app markup","Sample trades show no matching V2 app identifiers or markup"]
+  },
+  "Auth / Backend": {
+    questions: ["Will JB validation reject markup values above 3%?","When can Lipika start Connected Apps work?"],
+    decisions: ["Lipika starts with Connected Apps, API token tasks follow","Email notification to be sent on app registration with T&C"],
+    dependencies: ["Kirill: Merge 5% backend PR to production","Kirill: Provide eventbus endpoints data to Govi","JP: Review trade-capture path"],
+    notes: ["Eventbus endpoints shared: devhub.app_created.v1, devhub.app_updated.v1","PAT creation/revocation inside Trader's Hub planned"]
+  },
+  "Partners / Biz Dev": {
+    questions: ["Who will calculate V2 partner commissions long-term?","How to link developer accounts to partner accounts?"],
+    decisions: ["5% commission for V2 (temp), revert to 3% later","Extra 2% comes from client's bucket, not company's pocket","Developers without partner accounts cannot receive commissions"],
+    dependencies: ["Govi's team: V2 markup payment handling","Bilal: Account linking implementation","Tristan: Commission calculation process"],
+    notes: ["V2 commission calculations must exclude app markup to prevent overpayment","First incentive communication targeting top 50 developers","Daily payouts to wallets (same as other partners)"]
+  },
+  "HubSpot / Marketing": {
+    questions: ["When is HubSpot email setup ready for sunset communication?"],
+    decisions: ["Email needs review by Ashkan, Rakshit, Prakash, Azita before sending","Separate communications: top developers first, then all developers"],
+    dependencies: ["Manahel: HubSpot email setup","Ashkan: Line-by-line review of announcement email"],
+    notes: ["HTML and simplified versions of announcement prepared","Include new email ID requirement for account creation","#task_apiv2_hubspot channel created Mar 2"]
+  },
+  "Design (Figma)": {
+    questions: ["Where to place T&C in new dashboard?"],
+    decisions: ["T&C checkbox required per app, not per user","X button removed from UI (not in approved design)"],
+    dependencies: ["Manros: App builder design review for Nigel","Manros: Migration banner design"],
+    notes: ["OAuth consent page update needed (minor, not blocking)","T&C must be on both beta dashboard and new dashboard"]
+  },
+  "Support (Intercom)": {
+    questions: ["How to identify API partners vs regular developers?","What's the SOP for V1 vs V2 ticket routing?"],
+    decisions: ["Disable Telegram public discussions, direct to tickets","Handle inquiries privately to avoid public confusion"],
+    dependencies: ["Dmitry: Intercom inbox automation for api-support@deriv.com"],
+    notes: ["Duplicate account policy discussion ongoing","Consult Varun on communication strategy"]
+  },
+  "Compliance / Legal": {
+    questions: ["Does Azita need veto power over item status changes?"],
+    decisions: ["AI disclaimer to be removed from V2 (pending compliance approval)"],
+    dependencies: ["Aline: Required compliance links"],
+    notes: ["Follow-up needed with Aline on required links and updates"]
+  },
+  "DevOps / IT Ops": {
+    questions: [],
+    decisions: [],
+    dependencies: ["Amam: Cloudflare configuration for V2-enabled country routing"],
+    notes: ["CNAME/redirect issues being addressed by Prince","Manual Cloudflare configuration required — no automated list yet"]
+  }
+};
+let currentSPTeam = TEAMS[0].name;
+let currentSPTab = 'questions';
+
+// ===================== PERSISTENCE =====================
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({items, nextId}));
+}
+function saveScratchpad() {
+  localStorage.setItem(SCRATCHPAD_KEY, JSON.stringify(scratchpadData));
+}
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (d && d.items && d.items.length > 0) { items = d.items; nextId = d.nextId || items.length + 1; }
+    else if (items.length > 0) { nextId = items.length + 1; save(); }
+  } catch(e) {
+    if (items.length > 0) { nextId = items.length + 1; save(); }
+  }
+  try {
+    const s = JSON.parse(localStorage.getItem(SCRATCHPAD_KEY));
+    if (s) scratchpadData = s;
+  } catch(e) {}
+  // Init scratchpad for all teams
+  TEAMS.forEach(t => {
+    if (!scratchpadData[t.name]) {
+      scratchpadData[t.name] = { questions:[], decisions:[], dependencies:[], notes:[] };
+    }
+  });
+}
+
+// ===================== FILTERING =====================
+function getFiltered() {
+  const search = document.getElementById('search-input').value.toLowerCase();
+  const owner = document.getElementById('filter-owner').value;
+  const team = document.getElementById('filter-team').value;
+  const type = document.getElementById('filter-type').value;
+  const priority = document.getElementById('filter-priority').value;
+  return items.filter(i => {
+    if (search && !i.title.toLowerCase().includes(search) && !(i.notes||'').toLowerCase().includes(search)) return false;
+    if (owner && i.owner !== owner) return false;
+    if (team && i.team !== team) return false;
+    if (type && i.type !== type) return false;
+    if (priority && i.priority !== priority) return false;
+    return true;
+  });
+}
+
+// ===================== RENDER =====================
+function render() {
+  const area = document.getElementById('content-area');
+  const filtered = getFiltered();
+
+  if (currentView === 'kanban') renderKanban(area, filtered);
+  else if (currentView === 'person') renderPerson(area, filtered);
+  else if (currentView === 'type') renderType(area, filtered);
+  else if (currentView === 'team') renderTeam(area, filtered);
+  else if (currentView === 'scratchpad') renderScratchpad(area);
+
+  renderKPIs(filtered);
+}
+
+function renderKPIs(filtered) {
+  const all = filtered || getFiltered();
+  const counts = {};
+  STATUSES.forEach(s => counts[s] = 0);
+  all.forEach(i => { if (counts[i.status] !== undefined) counts[i.status]++; });
+
+  const kpiHtml = `<div class="kpi-row">
+    <div class="kpi-card backlog"><div class="kpi-val">${counts['Backlog']}</div><div class="kpi-label">Backlog</div></div>
+    <div class="kpi-card progress"><div class="kpi-val">${counts['In Progress']}</div><div class="kpi-label">In Progress</div></div>
+    <div class="kpi-card blocked"><div class="kpi-val">${counts['Blocked']}</div><div class="kpi-label">Blocked</div></div>
+    <div class="kpi-card review"><div class="kpi-val">${counts['In Review']}</div><div class="kpi-label">In Review</div></div>
+    <div class="kpi-card done"><div class="kpi-val">${counts['Done']}</div><div class="kpi-label">Done</div></div>
+  </div>`;
+
+  const area = document.getElementById('content-area');
+  // Prepend KPIs if not scratchpad
+  if (currentView !== 'scratchpad') {
+    const existing = area.querySelector('.kpi-row');
+    if (existing) existing.outerHTML = kpiHtml;
+    else area.insertAdjacentHTML('afterbegin', kpiHtml);
+  }
+}
+
+// ---- Kanban View ----
+function renderKanban(area, filtered) {
+  let html = '<div class="kpi-row"></div><div class="kanban">';
+  STATUSES.forEach(status => {
+    const colItems = filtered.filter(i => i.status === status);
+    const dotColor = status === 'Backlog' ? 'var(--col-backlog)' : status === 'In Progress' ? 'var(--col-progress)' : status === 'Blocked' ? 'var(--col-blocked)' : status === 'In Review' ? 'var(--col-review)' : 'var(--col-done)';
+    html += `<div class="kanban-col" data-status="${status}">
+      <div class="kanban-col-header">
+        <span class="dot" style="background:${dotColor}"></span>${status}
+        <span class="count">${colItems.length}</span>
+      </div>
+      <div class="kanban-cards" data-status="${status}"
+        ondragover="event.preventDefault();this.classList.add('drag-over')"
+        ondragleave="this.classList.remove('drag-over')"
+        ondrop="handleDrop(event,'${status}');this.classList.remove('drag-over')">`;
+    colItems.forEach(item => { html += renderCard(item); });
+    if (colItems.length === 0) html += '<div class="empty-state">No items</div>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function renderCard(item) {
+  const teamObj = TEAMS.find(t => t.name === item.team);
+  const teamColor = teamObj ? teamObj.color : '#94a3b8';
+  const prClass = item.priority === 'High' ? 'tag-priority-high' : item.priority === 'Low' ? 'tag-priority-low' : 'tag-priority-medium';
+  const mergeClass = mergeMode && mergeSelected.has(item.id) ? 'selected-merge' : '';
+  return `<div class="card ${mergeClass}" draggable="${!mergeMode}" data-id="${item.id}"
+    ondragstart="handleDragStart(event,${item.id})"
+    ondragend="event.target.classList.remove('dragging')"
+    ${mergeMode ? `onclick="toggleMerge(${item.id})"` : ''}>
+    <div class="card-actions">
+      <button title="Edit" onclick="event.stopPropagation();openEdit(${item.id})">✎</button>
+      <button title="Delete" onclick="event.stopPropagation();deleteItem(${item.id})">🗑</button>
+    </div>
+    <div class="card-title" id="ct-${item.id}" ondblclick="startInlineEdit(this,${item.id},'title')">${esc(item.title)}</div>
+    <div class="card-meta">
+      <span class="tag tag-type">${item.type}</span>
+      <span class="tag ${prClass}">${item.priority}</span>
+      <span class="tag tag-team" style="background:${teamColor}15;color:${teamColor}">${shortTeam(item.team)}</span>
+      <span class="card-owner">→ ${item.owner}</span>
+    </div>
+    ${item.notes ? `<div class="card-notes" ondblclick="startInlineEdit(this,${item.id},'notes')">${esc(item.notes)}</div>` : ''}
+  </div>`;
+}
+
+function shortTeam(name) {
+  return name.replace(/ \(.+\)/,'').replace(' / ','/');
+}
+function esc(s) { const d=document.createElement('div');d.textContent=s||'';return d.innerHTML; }
+
+// ---- Person View ----
+function renderPerson(area, filtered) {
+  const byOwner = {};
+  filtered.forEach(i => { (byOwner[i.owner] = byOwner[i.owner] || []).push(i); });
+  let html = '<div class="kpi-row"></div><div class="person-grid">';
+  Object.keys(byOwner).sort().forEach(owner => {
+    const ownerItems = byOwner[owner];
+    const initials = owner.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    html += `<div class="person-section"><div class="person-header">
+      <div class="avatar">${initials}</div>
+      <div class="name">${esc(owner)}</div>
+      <div class="count">${ownerItems.length} items</div>
+    </div><div class="person-items">`;
+    ownerItems.forEach(i => {
+      const sc = i.status.toLowerCase().replace(/ /g,'-');
+      html += `<div class="person-item status-${sc}">
+        <div class="pi-title">${esc(i.title)}</div>
+        <div class="pi-meta"><span>${i.type}</span><span>${i.priority}</span><span>${i.team}</span></div>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  if (Object.keys(byOwner).length === 0) html += '<div class="empty-state">No items match current filters</div>';
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+// ---- Type View ----
+function renderType(area, filtered) {
+  const byType = {};
+  filtered.forEach(i => { (byType[i.type] = byType[i.type] || []).push(i); });
+  let html = '<div class="kpi-row"></div><div class="type-grid">';
+  TYPES.forEach(type => {
+    const tItems = byType[type] || [];
+    if (tItems.length === 0) return;
+    html += `<div class="type-section"><div class="type-header">${type} <span style="margin-left:auto;font-size:12px;color:var(--text-sec)">${tItems.length}</span></div><div class="type-items">`;
+    tItems.forEach(i => {
+      const sc = i.status.toLowerCase().replace(/ /g,'-');
+      html += `<div class="person-item status-${sc}">
+        <div class="pi-title">${esc(i.title)}</div>
+        <div class="pi-meta"><span>${i.owner}</span><span>${i.status}</span><span>${i.priority}</span></div>
+      </div>`;
+    });
+    html += '</div></div>';
+  });
+  if (Object.keys(byType).length === 0) html += '<div class="empty-state">No items match current filters</div>';
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+// ---- Team View ----
+function renderTeam(area, filtered) {
+  let html = '<div class="kpi-row"></div><div class="team-grid">';
+  TEAMS.forEach(team => {
+    const teamItems = filtered.filter(i => i.team === team.name);
+    const statusCounts = {};
+    STATUSES.forEach(s => statusCounts[s] = 0);
+    teamItems.forEach(i => { if(statusCounts[i.status] !== undefined) statusCounts[i.status]++; });
+    const statusDots = STATUSES.map(s => {
+      const c = s === 'Backlog' ? 'var(--col-backlog)' : s === 'In Progress' ? 'var(--col-progress)' : s === 'Blocked' ? 'var(--col-blocked)' : s === 'In Review' ? 'var(--col-review)' : 'var(--col-done)';
+      return statusCounts[s] > 0 ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--text-sec)"><span style="width:7px;height:7px;border-radius:50%;background:${c};display:inline-block"></span>${statusCounts[s]}</span>` : '';
+    }).filter(Boolean).join(' ');
+    const engagedBadge = team.status === 'not-engaged' ? '<span style="font-size:10px;background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:4px;margin-left:auto">Not engaged</span>' : '';
+    html += `<div class="team-section">
+      <div class="team-header">
+        <div class="team-color-bar" style="background:${team.color}"></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:14px;font-weight:600">${team.name}</span>
+            ${engagedBadge}
+          </div>
+          <div style="font-size:12px;color:var(--text-sec);margin-top:2px">POC: ${team.poc}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:20px;font-weight:700;color:${team.color}">${teamItems.length}</div>
+          <div style="font-size:10px;color:var(--text-sec)">items</div>
+        </div>
+      </div>
+      <div style="padding:8px 14px 6px;display:flex;gap:8px;flex-wrap:wrap">${statusDots || '<span style="font-size:11px;color:var(--text-sec)">No items</span>'}</div>
+      <div class="team-items">`;
+    teamItems.forEach(i => {
+      const sc = i.status.toLowerCase().replace(/ /g,'-');
+      const prClass = i.priority === 'High' ? 'tag-priority-high' : i.priority === 'Low' ? 'tag-priority-low' : 'tag-priority-medium';
+      html += `<div class="person-item status-${sc}">
+        <div class="pi-title">${esc(i.title)}</div>
+        <div class="pi-meta"><span>${i.owner}</span><span class="tag ${prClass}" style="padding:1px 5px">${i.priority}</span><span>${i.status}</span><span>${i.type}</span></div>
+      </div>`;
+    });
+    if (teamItems.length === 0) html += '<div style="padding:12px;font-size:12px;color:var(--text-sec);text-align:center">No items assigned</div>';
+    html += '</div></div>';
+  });
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+// ---- Scratchpad View ----
+function renderScratchpad(area) {
+  const tabs = [
+    {key:'questions',label:'Open Questions'},
+    {key:'decisions',label:'Decisions'},
+    {key:'dependencies',label:'Dependencies'},
+    {key:'notes',label:'Notes'}
+  ];
+  let teamListHtml = '';
+  TEAMS.forEach(t => {
+    const data = scratchpadData[t.name] || {questions:[],decisions:[],dependencies:[],notes:[]};
+    const total = data.questions.length + data.decisions.length + data.dependencies.length + data.notes.length;
+    const cls = t.name === currentSPTeam ? 'active' : '';
+    teamListHtml += `<div class="sp-team-item ${cls}" onclick="switchSPTeam('${t.name.replace(/'/g,"\\'")}')">
+      <span class="sp-dot" style="background:${t.color}"></span>
+      <span style="flex:1;font-size:12px">${t.name}</span>
+      ${total ? `<span class="sp-badge">${total}</span>` : ''}
+    </div>`;
+  });
+
+  const team = TEAMS.find(t => t.name === currentSPTeam) || TEAMS[0];
+  const data = scratchpadData[currentSPTeam] || {questions:[],decisions:[],dependencies:[],notes:[]};
+
+  let tabsHtml = '';
+  tabs.forEach(tab => {
+    const active = currentSPTab === tab.key ? 'active' : '';
+    const count = data[tab.key].length;
+    tabsHtml += `<div class="sp-tab ${active}" onclick="switchSPTab('${tab.key}')">${tab.label}<span class="tab-count">${count}</span></div>`;
+  });
+
+  const currentItems = data[currentSPTab] || [];
+  let itemsHtml = '';
+  currentItems.forEach((text, idx) => {
+    itemsHtml += `<div class="sp-item">
+      <span style="color:var(--text-sec);font-size:12px;min-width:20px">${idx+1}.</span>
+      <div class="sp-item-text" ondblclick="startSPEdit(this,${idx})">${esc(text)}</div>
+      <span class="sp-item-del" onclick="deleteSPItem(${idx})">×</span>
+    </div>`;
+  });
+  if (currentItems.length === 0) itemsHtml = '<div class="empty-state" style="padding:20px">No items yet. Add one below.</div>';
+
+  area.innerHTML = `<div class="scratchpad">
+    <div class="sp-sidebar"><div class="sp-team-list">${teamListHtml}</div></div>
+    <div class="sp-main">
+      <div class="sp-main-header">
+        <h2>${team.name}</h2>
+        <div class="sp-poc">POC: ${team.poc}</div>
+      </div>
+      <div class="sp-tabs">${tabsHtml}</div>
+      <div class="sp-content">
+        ${itemsHtml}
+        <div class="sp-add-row">
+          <input type="text" id="sp-new-input" placeholder="Add new item…" onkeydown="if(event.key==='Enter')addSPItem()">
+          <button class="btn btn-sm btn-primary" onclick="addSPItem()">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ===================== DRAG & DROP =====================
+let dragItemId = null;
+function handleDragStart(e, id) {
+  dragItemId = id;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function handleDrop(e, status) {
+  e.preventDefault();
+  if (dragItemId == null) return;
+  const item = items.find(i => i.id === dragItemId);
+  if (item) {
+    item.status = status;
+    item.updated = new Date().toISOString();
+    save();
+    render();
+  }
+  dragItemId = null;
+}
+
+// ===================== INLINE EDITING =====================
+function startInlineEdit(el, id, field) {
+  if (mergeMode) return;
+  el.contentEditable = true;
+  el.focus();
+  // Select all text
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  function finish() {
+    el.contentEditable = false;
+    const item = items.find(i => i.id === id);
+    if (item) {
+      item[field] = el.textContent.trim();
+      item.updated = new Date().toISOString();
+      save();
+    }
+    el.removeEventListener('blur', finish);
+    el.removeEventListener('keydown', onKey);
+  }
+  function onKey(e) {
+    if (e.key === 'Enter') { e.preventDefault(); finish(); }
+    if (e.key === 'Escape') { el.contentEditable = false; render(); }
+  }
+  el.addEventListener('blur', finish);
+  el.addEventListener('keydown', onKey);
+}
+
+// ===================== ADD / EDIT / DELETE =====================
+function openAddModal() {
+  document.getElementById('modal-add-title').textContent = 'Add New Item';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('field-title').value = '';
+  document.getElementById('field-notes').value = '';
+  document.getElementById('field-status').value = 'Backlog';
+  document.getElementById('field-priority').value = 'Medium';
+  document.getElementById('field-type').value = TYPES[0];
+  document.getElementById('field-owner').value = MEMBERS[0];
+  document.getElementById('field-team').value = TEAMS[0].name;
+  document.getElementById('modal-add').classList.remove('hidden');
+}
+
+function openEdit(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  document.getElementById('modal-add-title').textContent = 'Edit Item';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('field-title').value = item.title;
+  document.getElementById('field-notes').value = item.notes || '';
+  document.getElementById('field-status').value = item.status;
+  document.getElementById('field-priority').value = item.priority;
+  document.getElementById('field-type').value = item.type;
+  document.getElementById('field-owner').value = item.owner;
+  document.getElementById('field-team').value = item.team;
+  document.getElementById('modal-add').classList.remove('hidden');
+}
+
+function saveItem() {
+  const title = document.getElementById('field-title').value.trim();
+  if (!title) { alert('Title is required'); return; }
+  const editId = document.getElementById('edit-id').value;
+  const data = {
+    title,
+    owner: document.getElementById('field-owner').value,
+    team: document.getElementById('field-team').value,
+    type: document.getElementById('field-type').value,
+    status: document.getElementById('field-status').value,
+    priority: document.getElementById('field-priority').value,
+    notes: document.getElementById('field-notes').value.trim(),
+    updated: new Date().toISOString()
+  };
+
+  if (editId) {
+    const item = items.find(i => i.id === parseInt(editId));
+    if (item) Object.assign(item, data);
+  } else {
+    items.push({ id: nextId++, ...data, created: new Date().toISOString(), source: 'manual' });
+  }
+  save();
+  closeModal('modal-add');
+  render();
+}
+
+function deleteItem(id) {
+  if (!confirm('Delete this item?')) return;
+  items = items.filter(i => i.id !== id);
+  save();
+  render();
+}
+
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+// ===================== TRANSCRIPT PARSING =====================
+function parseTranscript() {
+  const text = document.getElementById('transcript-text').value;
+  if (!text.trim()) return;
+
+  const lines = text.split('\n').filter(l => l.trim());
+  const extracted = [];
+
+  // Patterns for action items
+  const patterns = [
+    /(?:action(?:\s+item)?|todo|task|to-do)\s*[:\-–]\s*(.+)/i,
+    /(\w+)\s+(?:will|to|should|needs? to|must)\s+(.+)/i,
+    /(?:decision|decided)\s*[:\-–]\s*(.+)/i,
+    /(?:follow[- ]?up|next step)\s*[:\-–]\s*(.+)/i,
+    /(?:bug|fix|issue)\s*[:\-–]\s*(.+)/i,
+    /^\s*[\-\*•]\s+(.+(?:will|should|needs?|must|todo|action|follow).+)/i,
+  ];
+
+  lines.forEach(line => {
+    for (const pattern of patterns) {
+      const match = line.match(pattern);
+      if (match) {
+        const fullMatch = match[0];
+        let title = match[2] ? `${match[1]} to ${match[2]}` : match[1];
+        title = title.replace(/^\s*[\-\*•:]\s*/, '').trim();
+        if (title.length < 5 || title.length > 200) continue;
+
+        // Detect owner from member names
+        let owner = 'Unassigned';
+        let type = 'Action Item';
+        for (const m of MEMBERS) {
+          if (line.toLowerCase().includes(m.toLowerCase())) { owner = m; break; }
+        }
+        if (/decision|decided/i.test(line)) type = 'Product Decision';
+        if (/bug|fix|issue/i.test(line)) type = 'Bug/Fix';
+        if (/review/i.test(line)) type = 'Review';
+        if (/doc|documentation/i.test(line)) type = 'Documentation';
+
+        // Check for duplicates in extracted
+        if (!extracted.find(e => e.title.toLowerCase() === title.toLowerCase())) {
+          extracted.push({ title, owner, type, priority: 'Medium', checked: true });
+        }
+        break;
+      }
+    }
+  });
+
+  // Render extracted items
+  const container = document.getElementById('extracted-items');
+  if (extracted.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding:16px">No action items detected. Try pasting text with patterns like "Name will do X" or "Action: do Y".</div>';
+    document.getElementById('btn-add-extracted').classList.add('hidden');
+    return;
+  }
+
+  window._extracted = extracted;
+  let html = `<div style="font-size:13px;font-weight:500;margin-bottom:8px;">${extracted.length} item(s) found:</div>`;
+  extracted.forEach((e, idx) => {
+    html += `<div class="extracted-item">
+      <input type="checkbox" ${e.checked ? 'checked' : ''} onchange="window._extracted[${idx}].checked=this.checked">
+      <div style="flex:1">
+        <div class="ei-title">${esc(e.title)}</div>
+        <div class="ei-meta">${e.type} · ${e.owner} · ${e.priority}</div>
+      </div>
+    </div>`;
+  });
+  container.innerHTML = html;
+  document.getElementById('btn-add-extracted').classList.remove('hidden');
+}
+
+function addExtractedItems() {
+  const toAdd = (window._extracted || []).filter(e => e.checked);
+  toAdd.forEach(e => {
+    items.push({
+      id: nextId++,
+      title: e.title,
+      owner: e.owner,
+      type: e.type,
+      priority: e.priority,
+      status: 'Backlog',
+      team: 'Core API Team',
+      notes: '',
+      created: new Date().toISOString(),
+      updated: new Date().toISOString(),
+      source: 'transcript'
+    });
+  });
+  save();
+  closeModal('modal-transcript');
+  render();
+}
+
+// ===================== MERGE MODE =====================
+function toggleMergeMode() {
+  mergeMode = !mergeMode;
+  mergeSelected.clear();
+  document.getElementById('merge-bar').classList.toggle('hidden', !mergeMode);
+  document.body.classList.toggle('merge-mode', mergeMode);
+  updateMergeCount();
+  render();
+}
+
+function toggleMerge(id) {
+  if (!mergeMode) return;
+  if (mergeSelected.has(id)) mergeSelected.delete(id);
+  else mergeSelected.add(id);
+  updateMergeCount();
+  render();
+}
+
+function updateMergeCount() {
+  document.getElementById('merge-count').textContent = `${mergeSelected.size} item(s) selected`;
+}
+
+function doMerge() {
+  if (mergeSelected.size < 2) { alert('Select at least 2 items to merge.'); return; }
+  const ids = [...mergeSelected];
+  const toMerge = items.filter(i => ids.includes(i.id));
+  // Pick highest priority
+  const prOrder = {High:0,Medium:1,Low:2};
+  toMerge.sort((a,b) => (prOrder[a.priority]||1) - (prOrder[b.priority]||1));
+  const primary = toMerge[0];
+  // Combine notes
+  const combinedNotes = toMerge.map(i => i.notes).filter(Boolean).join('\n---\n');
+  primary.notes = combinedNotes;
+  primary.updated = new Date().toISOString();
+  // Remove others
+  const removeIds = ids.filter(id => id !== primary.id);
+  items = items.filter(i => !removeIds.includes(i.id));
+  save();
+  toggleMergeMode();
+  render();
+}
+
+// ===================== SCRATCHPAD ACTIONS =====================
+function switchSPTeam(name) { currentSPTeam = name; render(); }
+function switchSPTab(tab) { currentSPTab = tab; render(); }
+
+function addSPItem() {
+  const input = document.getElementById('sp-new-input');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!scratchpadData[currentSPTeam]) scratchpadData[currentSPTeam] = {questions:[],decisions:[],dependencies:[],notes:[]};
+  scratchpadData[currentSPTeam][currentSPTab].push(text);
+  saveScratchpad();
+  render();
+}
+
+function deleteSPItem(idx) {
+  scratchpadData[currentSPTeam][currentSPTab].splice(idx, 1);
+  saveScratchpad();
+  render();
+}
+
+function startSPEdit(el, idx) {
+  el.contentEditable = true;
+  el.focus();
+  function finish() {
+    el.contentEditable = false;
+    scratchpadData[currentSPTeam][currentSPTab][idx] = el.textContent.trim();
+    saveScratchpad();
+  }
+  function onKey(e) {
+    if (e.key === 'Enter') { e.preventDefault(); finish(); }
+    if (e.key === 'Escape') { el.contentEditable = false; render(); }
+  }
+  el.addEventListener('blur', finish, {once:true});
+  el.addEventListener('keydown', onKey);
+}
+
+// ===================== EXPORT / IMPORT =====================
+function exportData() {
+  const data = JSON.stringify({items, nextId, scratchpadData}, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `deriv-api-v2-tracker-${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importData() {
+  document.getElementById('import-file').click();
+}
+
+document.getElementById('import-file').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.items) {
+        items = data.items;
+        nextId = data.nextId || items.length + 1;
+        if (data.scratchpadData) scratchpadData = data.scratchpadData;
+        save(); saveScratchpad(); render();
+        alert('Import successful! ' + items.length + ' items loaded.');
+      }
+    } catch(err) { alert('Invalid JSON file.'); }
+  };
+  reader.readAsText(file);
+  this.value = '';
+});
+
+// ===================== POPULATE SELECTS =====================
+function populateSelects() {
+  const ownerSel = document.getElementById('field-owner');
+  const teamSel = document.getElementById('field-team');
+  const typeSel = document.getElementById('field-type');
+  const filterOwner = document.getElementById('filter-owner');
+  const filterTeam = document.getElementById('filter-team');
+  const filterType = document.getElementById('filter-type');
+
+  MEMBERS.forEach(m => ownerSel.add(new Option(m, m)));
+  TEAMS.forEach(t => teamSel.add(new Option(t.name, t.name)));
+  TYPES.forEach(t => typeSel.add(new Option(t, t)));
+
+  MEMBERS.forEach(m => filterOwner.add(new Option(m, m)));
+  TEAMS.forEach(t => filterTeam.add(new Option(t.name, t.name)));
+  TYPES.forEach(t => filterType.add(new Option(t, t)));
+}
+
+// ===================== EVENT LISTENERS =====================
+function init() {
+  load();
+  populateSelects();
+
+  // Navigation
+  document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+    el.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      currentView = el.dataset.view;
+      document.getElementById('view-title').textContent =
+        currentView === 'kanban' ? 'Kanban Board' :
+        currentView === 'person' ? 'By Person' :
+        currentView === 'type' ? 'By Type' :
+        currentView === 'team' ? 'By Team' : 'Team Scratchpad';
+      render();
+    });
+  });
+
+  // Actions
+  document.getElementById('btn-add').addEventListener('click', openAddModal);
+  document.getElementById('nav-add').addEventListener('click', openAddModal);
+  document.getElementById('nav-transcript').addEventListener('click', () => {
+    document.getElementById('transcript-text').value = '';
+    document.getElementById('extracted-items').innerHTML = '';
+    document.getElementById('btn-add-extracted').classList.add('hidden');
+    document.getElementById('modal-transcript').classList.remove('hidden');
+  });
+  document.getElementById('nav-merge').addEventListener('click', toggleMergeMode);
+  document.getElementById('nav-export').addEventListener('click', exportData);
+  document.getElementById('nav-import').addEventListener('click', importData);
+
+  document.getElementById('btn-save-item').addEventListener('click', saveItem);
+  document.getElementById('btn-parse').addEventListener('click', parseTranscript);
+  document.getElementById('btn-add-extracted').addEventListener('click', addExtractedItems);
+  document.getElementById('btn-do-merge').addEventListener('click', doMerge);
+  document.getElementById('btn-cancel-merge').addEventListener('click', toggleMergeMode);
+
+  // Filters
+  ['filter-owner','filter-team','filter-type','filter-priority'].forEach(id => {
+    document.getElementById(id).addEventListener('change', render);
+  });
+  document.getElementById('search-input').addEventListener('input', render);
+  document.getElementById('filter-clear').addEventListener('click', () => {
+    ['filter-owner','filter-team','filter-type','filter-priority'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('search-input').value = '';
+    render();
+  });
+
+  render();
+
+  // === SYNC BUTTON HANDLERS ===
+  document.getElementById('nav-sync-slack').addEventListener('click', () => showSyncModal('slack'));
+  document.getElementById('nav-sync-email').addEventListener('click', () => showSyncModal('email'));
+  document.getElementById('nav-sync-files').addEventListener('click', () => showSyncModal('files'));
+  document.getElementById('sync-modal-close').addEventListener('click', closeSyncModal);
+  document.getElementById('sync-modal-action').addEventListener('click', closeSyncModal);
+  document.getElementById('sync-modal').addEventListener('click', (e) => {
+    if (e.target.id === 'sync-modal') closeSyncModal();
+  });
+}
+
+// ===================== SYNC CONFIG =====================
+const SYNC_CONFIG = {
+  slack: {
+    channels: [
+      { id: 'C08H3AYCDM3', name: '#project_deriv_api_v2', status: 'connected', items: 14 },
+      { id: 'C0A7NK0S5N3', name: '#api_customer_support', status: 'connected', items: 3 },
+      { id: 'C0AJASV065P', name: '#task_apiv2_markupcommissions', status: 'connected', items: 2 },
+      { id: 'C09QFK3SA5V', name: '#task_api_v2_website', status: 'connected', items: 5 },
+      { id: 'C0AJ0DSSYEA', name: '#task_apiv2_hubspot', status: 'new', items: 0 },
+      { id: 'C0AJ2GAK142', name: '#task_apiv2_seo', status: 'new', items: 0 },
+      { id: 'C0AHW8DNX8B', name: '#task_apiv2_partners', status: 'new', items: 0 },
+    ],
+    lastSync: '2026-03-02T15:30:00'
+  },
+  email: {
+    sources: [
+      { name: 'Overseer Meeting Minutes', filter: 'from:overseer@deriv.com', status: 'connected', items: 12 },
+      { name: 'Zoom Meeting Assets', filter: 'from:no-reply@zoom.us', status: 'connected', items: 8 },
+    ],
+    lastSync: '2026-03-02T15:30:00'
+  },
+  files: {
+    path: 'API Meetings & Notes (75 docs)',
+    lastSync: '2026-03-02T15:30:00',
+    recentDocs: 12,
+    totalDocs: 75
+  }
+};
+
+function formatSyncTime(iso) {
+  if (!iso) return 'Never';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) + ' ' +
+         d.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
+}
+
+function showSyncModal(type) {
+  const modal = document.getElementById('sync-modal');
+  const title = document.getElementById('sync-modal-title');
+  const content = document.getElementById('sync-content');
+  const statusText = document.getElementById('sync-status-text');
+  const actionBtn = document.getElementById('sync-modal-action');
+
+  let html = '';
+
+  if (type === 'slack') {
+    title.textContent = '💬 Slack Sync Sources';
+    html += `<div class="sync-info-banner">
+      <strong>How it works:</strong> Ask Claude to "sync the tracker" and it will read messages from these channels, extract action items, decisions, and questions, then add them to your board.
+    </div>`;
+    html += '<div style="margin-bottom:8px;font-size:13px;font-weight:600;">Connected Channels (7)</div>';
+    SYNC_CONFIG.slack.channels.forEach(ch => {
+      const dot = ch.status === 'connected' ? 'connected' : ch.status === 'new' ? 'new' : 'pending';
+      const label = ch.status === 'new' ? 'New — no messages yet' : `${ch.items} items extracted`;
+      html += `<div class="sync-status-row">
+        <span class="sync-dot ${dot}"></span>
+        <span style="font-weight:500;">${ch.name}</span>
+        <span style="margin-left:auto;color:var(--text-sec);">${label}</span>
+      </div>`;
+    });
+    html += `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-sec);">
+      Last synced: ${formatSyncTime(SYNC_CONFIG.slack.lastSync)}
+    </div>`;
+    statusText.textContent = `${SYNC_CONFIG.slack.channels.length} channels configured`;
+
+  } else if (type === 'email') {
+    title.textContent = '📧 Email Sync Sources';
+    html += `<div class="sync-info-banner">
+      <strong>How it works:</strong> Ask Claude to "sync emails" and it will read your Overseer meeting minutes and Zoom meeting summaries, then extract action items, decisions, and blockers.
+    </div>`;
+    SYNC_CONFIG.email.sources.forEach(src => {
+      html += `<div class="sync-source-card">
+        <h4><span class="sync-dot connected" style="display:inline-block;"></span> ${src.name}</h4>
+        <div class="sync-channels">
+          Filter: <span class="sync-tag sync-tag-email">${src.filter}</span><br>
+          Items extracted: <strong>${src.items}</strong>
+        </div>
+      </div>`;
+    });
+    html += `<div style="margin-top:8px;font-size:12px;color:var(--text-sec);">
+      Last synced: ${formatSyncTime(SYNC_CONFIG.email.lastSync)}
+    </div>`;
+    statusText.textContent = `${SYNC_CONFIG.email.sources.length} email sources configured`;
+
+  } else if (type === 'files') {
+    title.textContent = '📁 Project Files Sync';
+    html += `<div class="sync-info-banner">
+      <strong>How it works:</strong> Ask Claude to "sync project files" and it will read recent meeting transcripts from your API Meetings & Notes project, then extract action items, decisions, and open questions.
+    </div>`;
+    html += `<div class="sync-source-card">
+      <h4><span class="sync-dot connected" style="display:inline-block;"></span> API Meetings & Notes</h4>
+      <div class="sync-channels">
+        Total documents: <strong>${SYNC_CONFIG.files.totalDocs}</strong><br>
+        Recent docs synced (last 7 days): <strong>${SYNC_CONFIG.files.recentDocs}</strong><br>
+        <div style="margin-top:8px;">Recent files include:</div>
+        <span class="sync-tag sync-tag-file">AM-PS catchups</span>
+        <span class="sync-tag sync-tag-file">AN-PS meetings</span>
+        <span class="sync-tag sync-tag-file">API Design & FE Updates</span>
+        <span class="sync-tag sync-tag-file">Commissions discussions</span>
+        <span class="sync-tag sync-tag-file">MA-PS catchups</span>
+        <span class="sync-tag sync-tag-file">Manros-PS sessions</span>
+      </div>
+    </div>`;
+    html += `<div style="margin-top:8px;font-size:12px;color:var(--text-sec);">
+      Last synced: ${formatSyncTime(SYNC_CONFIG.files.lastSync)}
+    </div>`;
+    statusText.textContent = `${SYNC_CONFIG.files.totalDocs} project docs available`;
+  }
+
+  content.innerHTML = html;
+  actionBtn.style.display = 'inline-flex';
+  actionBtn.textContent = 'Close';
+  modal.classList.remove('hidden');
+}
+
+function closeSyncModal() {
+  document.getElementById('sync-modal').classList.add('hidden');
+}
+
+init();
+</script>
+</body>
+</html>

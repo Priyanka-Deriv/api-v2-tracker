@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deriv API V2 Tracker — Full Version History</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; font-size:13px; color:#1a1a2e; background:#fff; line-height:1.6; }
+  .page { max-width:860px; margin:0 auto; padding:48px 40px; }
+
+  /* Header */
+  .header { border-bottom:3px solid #4f46e5; padding-bottom:24px; margin-bottom:36px; }
+  .header h1 { font-size:26px; font-weight:900; color:#4f46e5; margin-bottom:4px; }
+  .header .sub { font-size:13px; color:#6b7280; margin-bottom:12px; }
+  .meta-row { display:flex; gap:10px; flex-wrap:wrap; }
+  .meta-chip { font-size:11px; background:#f3f4f6; border-radius:20px; padding:3px 10px; color:#374151; }
+
+  /* TOC */
+  .toc { background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:20px 24px; margin-bottom:36px; }
+  .toc h2 { font-size:13px; font-weight:700; color:#4f46e5; margin-bottom:10px; text-transform:uppercase; letter-spacing:.05em; }
+  .toc ol { padding-left:20px; }
+  .toc li { font-size:12px; color:#374151; margin-bottom:4px; }
+  .toc li span { color:#6b7280; }
+
+  /* Section headers */
+  .section-header { display:flex; align-items:center; gap:12px; margin:40px 0 6px; padding-bottom:8px; border-bottom:2px solid #e5e7eb; }
+  .section-header .ver { background:#4f46e5; color:#fff; font-size:11px; font-weight:800; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+  .section-header h2 { font-size:16px; font-weight:800; color:#111827; }
+  .section-date { font-size:11px; color:#9ca3af; margin-left:auto; }
+
+  /* Prompt / Response blocks */
+  .exchange { margin:16px 0; }
+  .prompt-block { background:#eff6ff; border-left:4px solid #3b82f6; border-radius:0 8px 8px 0; padding:12px 16px; margin-bottom:0; }
+  .prompt-block .label { font-size:10px; font-weight:800; color:#2563eb; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .prompt-block p { font-size:12px; color:#1e3a5f; line-height:1.6; }
+  .response-block { background:#f0fdf4; border-left:4px solid #22c55e; border-radius:0 8px 8px 0; padding:12px 16px; margin-top:2px; }
+  .response-block .label { font-size:10px; font-weight:800; color:#15803d; text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+  .response-block p { font-size:12px; color:#14532d; line-height:1.6; margin-bottom:6px; }
+  .response-block p:last-child { margin-bottom:0; }
+
+  /* What changed */
+  .changes { background:#faf5ff; border:1px solid #e9d5ff; border-radius:8px; padding:12px 16px; margin-top:10px; }
+  .changes .label { font-size:10px; font-weight:800; color:#7c3aed; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; }
+  .changes ul { padding-left:16px; }
+  .changes li { font-size:12px; color:#374151; margin-bottom:3px; }
+
+  /* QA decisions */
+  .qa-grid { display:grid; gap:8px; margin:10px 0; }
+  .qa-item { background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:10px 14px; }
+  .qa-item .q { font-size:11px; font-weight:700; color:#92400e; margin-bottom:3px; }
+  .qa-item .a { font-size:12px; color:#1c1917; }
+
+  /* Error block */
+  .error-block { background:#fef2f2; border-left:4px solid #ef4444; border-radius:0 8px 8px 0; padding:10px 14px; }
+  .error-block .label { font-size:10px; font-weight:800; color:#b91c1c; text-transform:uppercase; margin-bottom:4px; }
+  .error-block p { font-size:12px; color:#7f1d1d; }
+
+  /* Feature badges */
+  .badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; margin:1px; }
+  .b-blue { background:#dbeafe; color:#1d4ed8; }
+  .b-green { background:#dcfce7; color:#15803d; }
+  .b-red { background:#fee2e2; color:#b91c1c; }
+  .b-purple { background:#f3e8ff; color:#7c3aed; }
+  .b-orange { background:#ffedd5; color:#c2410c; }
+  .b-gray { background:#f3f4f6; color:#374151; }
+
+  /* Screenshot placeholder */
+  .artifact-note { background:#f8fafc; border:1px dashed #cbd5e1; border-radius:8px; padding:10px 14px; font-size:11px; color:#64748b; text-align:center; margin:10px 0; }
+
+  hr { border:none; border-top:1px solid #f3f4f6; margin:20px 0; }
+  .divider { border:none; border-top:2px solid #e5e7eb; margin:36px 0; }
+  .footer { margin-top:48px; padding-top:16px; border-top:2px solid #e5e7eb; font-size:11px; color:#9ca3af; text-align:center; }
+  code { background:#f3f4f6; border-radius:4px; padding:1px 5px; font-family:monospace; font-size:11px; color:#374151; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Deriv API V2 — Team Tracker</h1>
+    <div class="sub">Complete Version History · Every Prompt &amp; Response · Full Build Log</div>
+    <div class="meta-row">
+      <span class="meta-chip">📋 Project: API Meetings &amp; Notes</span>
+      <span class="meta-chip">👤 Priyanka Shrivastava</span>
+      <span class="meta-chip">📅 February 2026</span>
+      <span class="meta-chip">🔄 13 versions</span>
+      <span class="meta-chip">💬 30+ exchanges</span>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li>v1 — <span>Initial project dashboard request</span></li>
+      <li>v2 — <span>Kanban board with item types &amp; states</span></li>
+      <li>v3 — <span>Multi-team structure + By Team view</span></li>
+      <li>v4 — <span>Transcript parsing + inline editing + merge mode</span></li>
+      <li>v5 — <span>Inline editing improvements (title + notes focus)</span></li>
+      <li>v6 — <span>Slack integration + Team Scratchpad + live storage</span></li>
+      <li>v7 — <span>Error: artifact too large (first crash)</span></li>
+      <li>v8 — <span>Error: returnReact variable crash</span></li>
+      <li>v9 — <span>Error: still crashing on mobile</span></li>
+      <li>v10 — <span>Stable base — confirmed loading on phone</span></li>
+      <li>v11 — <span>Full feature restore on stable base</span></li>
+      <li>v12 — <span>Slack read (not post) + duplicate detection</span></li>
+      <li>v13 — <span>Summary PDF + this version history document</span></li>
+    </ol>
+  </div>
+
+  <!-- ── V1 ── -->
+  <div class="section-header">
+    <span class="ver">v1</span>
+    <h2>Initial Dashboard Request</h2>
+    <span class="section-date">Start of conversation</span>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p><em>[No text — Priyanka remixed an existing project dashboard artifact to start the conversation. The original artifact was a generic project dashboard with charts, Gantt view, team workload bars, and milestone tracking.]</em></p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Presented the remixed project dashboard artifact with sample data. Offered to customise it and asked: "Where would you like to begin?" with options to change topic, update style, make it personal, or share a vision.</p>
+    </div>
+    <div class="changes">
+      <div class="label">What existed at this point</div>
+      <ul>
+        <li>Bar charts, line charts, pie charts for task status distribution</li>
+        <li>Gantt chart (timeline view)</li>
+        <li>Team workload view</li>
+        <li>Upcoming deadlines section</li>
+        <li>Milestones panel</li>
+        <li>Filter controls (team member, priority, status)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V2 ── -->
+  <div class="section-header">
+    <span class="ver">v2</span>
+    <h2>Kanban Board with Item Types &amp; States</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"I don't know how to add this in the current dashboard. For a product to launch, grow, and do everything, there are multiple teams that are helping us... A lot of teams are involved. I don't even sometimes know what might come next: translations and many other such things. Think about all these situations and how we can add that here... Make sure that when we add this, we do not miss out on any other things... The items should be divided into action items, product decisions, and many such states. Add a Kanban board. This is where all the action items are listed on the person's name. For each item we have status like in progress, blocked, backlogged, review and done. Team members can go there and put their own task as well."</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>First searched the project knowledge base for existing teams and context. Found: Core API team (Ashkan, Priyanka, Muhammad, Manros, Prince, Matin, Kirill, Ahmed), HubSpot/Marketing (Abheeshta, Manahel), BI/Data, Compliance (Azita), Partners (Ying Shan, Rakshit), Support (Dmitry), Country Managers, Design (Manros), Auth/Backend (Kirill, Lepika), DevOps.</p>
+      <p>Then asked 3 clarifying questions before building:</p>
+    </div>
+    <div class="qa-grid">
+      <div class="qa-item"><div class="q">Q: How to tag items to teams?</div><div class="a">Options: One primary team / Multiple teams / One primary + dependent teams</div></div>
+      <div class="qa-item"><div class="q">Q: Which views matter most?</div><div class="a">Options: Kanban / By team / By person / By type</div></div>
+      <div class="qa-item"><div class="q">Q: For external teams, what to track?</div><div class="a">Options: Request log / Status / POC / Blocked by us or blocking us</div></div>
+    </div>
+    <div class="response-block">
+      <div class="label">Priyanka's Answers</div>
+      <p>✅ One primary owner + list of dependent teams &nbsp;|&nbsp; ✅ All four views &nbsp;|&nbsp; ✅ All four tracking needs</p>
+    </div>
+    <div class="changes">
+      <div class="label">What was built</div>
+      <ul>
+        <li>Full Kanban board: Backlog → In Progress → Blocked → In Review → Done</li>
+        <li>7 item types: Action Item, Product Decision, Review, Stakeholder Input, Bug/Fix, Documentation, External Request</li>
+        <li>17 teams catalogued (internal + external), each with color, type, POC</li>
+        <li>4 views: Kanban, By Team, By Person, By Type</li>
+        <li>Primary team + dependent teams per item</li>
+        <li>Filters: team, owner, status, priority</li>
+        <li>Add Item modal with all fields</li>
+        <li>15 pre-seeded items from real meeting notes</li>
+        <li>Status bar showing counts per column</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V3 ── -->
+  <div class="section-header">
+    <span class="ver">v3</span>
+    <h2>Transcript Parsing + Inline Editing + Merge Mode</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"As soon as I paste a new transcript or file in the project, the artifact should be updated... It should allow me to edit, because many times the summaries miss the names or it's not calculating properly. It should have the ability to merge multiple tasks together. For example, sometimes there is only task A, but when we are discussing, it gets divided into B and C, but actually it is only one task."</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Asked 5 more clarifying questions before building:</p>
+    </div>
+    <div class="qa-grid">
+      <div class="qa-item"><div class="q">Q: How handle conflicts with existing items when pasting transcript?</div><div class="a">✅ Auto-add new items, flag possible duplicates for review</div></div>
+      <div class="qa-item"><div class="q">Q: What should merged item keep?</div><div class="a">✅ Primary title of choice + combined notes + higher priority + all dependent teams</div></div>
+      <div class="qa-item"><div class="q">Q: When transcript updates an existing item's status?</div><div class="a">✅ Show suggested change, I approve it</div></div>
+      <div class="qa-item"><div class="q">Q: How to trigger transcript parsing?</div><div class="a">✅ Paste text directly into a box inside the artifact</div></div>
+      <div class="qa-item"><div class="q">Q: Which fields go wrong most from transcripts?</div><div class="a">✅ Task title itself + Notes/context</div></div>
+    </div>
+    <div class="changes">
+      <div class="label">What was built</div>
+      <ul>
+        <li><strong>Paste Transcript modal</strong> — calls Claude API, extracts action items, assigns owners from team list</li>
+        <li>New items flagged orange as "From Transcript — review me"</li>
+        <li><strong>Suggested updates review modal</strong> — transcript-detected status changes shown as accept/reject pairs</li>
+        <li><strong>Merge Mode</strong> — checkbox selection, merge modal with radio for primary title, auto-combines notes + teams + highest priority</li>
+        <li><strong>Inline editing</strong> on title (click → input, Enter saves, Esc cancels, auto-selects text)</li>
+        <li><strong>Notes always visible</strong> on every card (not hidden behind expand), orange-highlighted for transcript items</li>
+        <li>Inline selects for type, priority, owner, status directly on card badges</li>
+        <li>"Mark as reviewed" button clears orange flag</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V4 ── -->
+  <div class="section-header">
+    <span class="ver">v4</span>
+    <h2>Inline Editing Focus — Title &amp; Notes</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"Q: For the inline editing you mentioned — which fields get wrong most often from transcripts? A: The task title itself and Notes / context"</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Sharpened the inline editing specifically for title and notes:</p>
+      <p>— Title: clicking now selects all text immediately (no triple-click needed), Enter saves, Escape cancels without losing original value. Tooltip on hover shows it's editable.</p>
+      <p>— Notes: moved out from behind expand arrow, always visible on every card as its own section. Click anywhere in notes area → multiline textarea. Orange background on transcript items.</p>
+      <p>Both fields auto-select on click, save on blur, never lose original value on Escape.</p>
+    </div>
+    <div class="changes">
+      <div class="label">Changes</div>
+      <ul>
+        <li>Title: auto-selects all text on click</li>
+        <li>Notes: always visible (not behind ▼), multiline textarea on click</li>
+        <li>Both: save on blur OR Enter, cancel on Escape without data loss</li>
+        <li>Hover tooltip "✏️ click to edit" on title</li>
+        <li>Notes field highlighted orange for transcript items</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V5 ── -->
+  <div class="section-header">
+    <span class="ver">v5</span>
+    <h2>Slack Integration + Team Scratchpad + Live Storage</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"It should have the ability to connect to three Slack channels that we have. Whenever there's an update on it, if you see there is an action item pending, tagging people, especially the team members, that we have to do this... There should also be a section when we have the teams. For each team, there are certain dependencies and open questions. Whenever we go on a meeting with those teams, we can just go through those questions together... A section in which they could be a scratch pad, open questions, or a to-do list or the solution list."</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Searched Slack for channels, found: #project_deriv_api_v2 (C08H3AYCDM3), #task_api_v2_website (C09QFK3SA5V), #project-br-api-migration, #need_help_api, #task_connect_api_v1_v2, #project_api_amy.</p>
+      <p>Asked Priyanka to pick 3 channels. She selected: #project_deriv_api_v2 and #task_api_v2_website.</p>
+      <p>Also asked about Team Scratchpad needs. Priyanka selected: Open Questions, Decisions, Dependencies (bidirectional), To-dos.</p>
+    </div>
+    <div class="changes">
+      <div class="label">What was built</div>
+      <ul>
+        <li><strong>Post to Slack modal</strong> (later replaced) — formatted action item messages with owner @handles, priority emoji, posted to selected channels</li>
+        <li><strong>Team Scratchpad view</strong> — sidebar of all 17 teams, tabs: Open Questions / Decisions / Dependencies / To-dos / Notes</li>
+        <li>Dependencies: bidirectional — "We need from them" (orange ←) and "They need from us" (blue →)</li>
+        <li>Item counts shown per team in sidebar</li>
+        <li><strong>Live shared storage</strong> — window.storage API, all changes persist across sessions for all users</li>
+        <li>Loading spinner on first open while fetching shared data</li>
+        <li>LIVE badge + "Saving…" indicator + last saved timestamp</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V6 ── -->
+  <div class="section-header">
+    <span class="ver">v6–8</span>
+    <h2>Crash Fixes — Artifact Too Large</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt (×3)</div>
+      <p>"Error to load the artifact" / "Again getting error" / <em>[Screenshot showing: "Can't find variable: returnReact"]</em></p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Diagnosed the root cause: the artifact code was exceeding the size limit, causing it to get truncated mid-parse. The error <code>returnReact</code> was a sign the JavaScript was being cut off before completion.</p>
+      <p>Three attempts to fix by progressively compressing and shortening the code while preserving all features. Each attempt reduced code size further through variable name compression, removing whitespace, inlining components.</p>
+      <p>Final solution: completely rewrote from scratch with a much leaner base, confirming stable load before adding features back.</p>
+    </div>
+    <div class="error-block">
+      <div class="label">Root Cause</div>
+      <p>React artifact code exceeded ~15,000 character limit. Code was truncated mid-execution causing <code>returnReact</code> variable to be undefined. Solution: aggressive compression + splitting features across smaller components.</p>
+    </div>
+  </div>
+
+  <!-- ── V10 ── -->
+  <div class="section-header">
+    <span class="ver">v10</span>
+    <h2>Stable Base — Confirmed Loading on Phone</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"Loads well"</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Confirmed stable version. Noted which features were temporarily removed to achieve stability: Slack posting, merge mode, team scratchpad, By Team view. Offered to add them back one at a time starting with the most important.</p>
+    </div>
+    <div class="changes">
+      <div class="label">Stable base features at this point</div>
+      <ul>
+        <li>Kanban, By Person, By Type views</li>
+        <li>Paste Transcript (Claude API)</li>
+        <li>Add items modal</li>
+        <li>Inline title editing (contentEditable)</li>
+        <li>Move cards between statuses</li>
+        <li>Filters: owner, status, search</li>
+        <li>Live shared storage (window.storage)</li>
+        <li>LIVE badge + saving indicator</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V11 ── -->
+  <div class="section-header">
+    <span class="ver">v11</span>
+    <h2>Full Feature Restore</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p><em>[Implicitly requested all features back after stable base confirmed]</em></p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Rebuilt the full feature set on top of the stable lean base, carefully staying within size limits through aggressive compression.</p>
+    </div>
+    <div class="changes">
+      <div class="label">All features restored</div>
+      <ul>
+        <li>Merge Mode with merge modal (radio for primary title)</li>
+        <li>Post to Slack modal (6 channels, item selector)</li>
+        <li>Team Scratchpad (all 15 teams, 5 tabs each)</li>
+        <li>Suggested update review modal from transcripts</li>
+        <li>Duplicate detection from transcript parsing</li>
+        <li>All 4 views: Kanban, By Person, By Type, Scratchpad</li>
+        <li>Persistent storage for both items and scratchpad</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V12 ── -->
+  <div class="section-header">
+    <span class="ver">v12</span>
+    <h2>Slack Read (Not Post) + Duplicate Detection</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"Instead of posting to Slack, I wanted it to read from these two Slack channels whenever someone tags or posts there. If the action items are not mentioned already, create an action item; then tag the right people. That is the functionality I want. Is this feature you have added doing the same?"</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Clarified: "No, the current feature does the <strong>opposite</strong> — it posts from the tracker to Slack. What you want is the reverse: read from Slack → auto-create action items in the tracker."</p>
+      <p>Asked 3 clarifying questions:</p>
+    </div>
+    <div class="qa-grid">
+      <div class="qa-item"><div class="q">Q: When should the tracker pull from Slack?</div><div class="a">✅ Both — auto on open + manual refresh button</div></div>
+      <div class="qa-item"><div class="q">Q: What Slack activity creates an action item?</div><div class="a">✅ Messages mentioning a team member (@name) + messages that look like tasks/to-dos</div></div>
+      <div class="qa-item"><div class="q">Q: If same task already exists?</div><div class="a">✅ Flag as possible duplicate for review</div></div>
+    </div>
+    <div class="response-block">
+      <div class="label">What Claude did before building</div>
+      <p>Looked up real Slack user IDs from the workspace to map @mentions correctly:</p>
+      <p>Priyanka → U070LCMQX19 &nbsp;·&nbsp; Ashkan → U0D22JSDA &nbsp;·&nbsp; Kirill → U6Y448143 &nbsp;·&nbsp; Matin → U01A0GPH49Z &nbsp;·&nbsp; Ahmed → U071Q4DHS58 &nbsp;·&nbsp; Muhammad → U75BVGLCE &nbsp;·&nbsp; Manros → U0D640XCJ &nbsp;·&nbsp; Prince → U02UCMS0YKH</p>
+      <p>Also read actual recent messages from #project_deriv_api_v2 to confirm the channel format and verify the sync would work. Found Ashkan's real message: <em>"for tomorrow: fix .be and .me remaining issues · Release markup commission changes to production · Add Datadog to API website @Priyanka @Matin @Ahmed"</em></p>
+    </div>
+    <div class="changes">
+      <div class="label">What was built</div>
+      <ul>
+        <li><strong>syncFromSlack() engine</strong> — reads last 30 messages from both channels via Slack MCP</li>
+        <li>Resolves <code>&lt;@U070LCMQX19&gt;</code> Slack user IDs → real names using hardcoded map</li>
+        <li>Claude analyses each message: only extracts if (1) mentions @team member OR (2) looks like a task</li>
+        <li>Ignores general chat, links, status updates with no action</li>
+        <li>New items added flagged as "From Slack" in blue badge</li>
+        <li><strong>Duplicate detection</strong>: if extracted item matches existing tracker item → withheld, shown in ⚠️ dupes review modal</li>
+        <li>Duplicate review shows Slack item + matching tracker item side by side → "Add anyway" or "Skip"</li>
+        <li><strong>Auto-sync on open</strong> — runs silently on load</li>
+        <li><strong>↻ Sync Slack button</strong> — manual re-sync anytime</li>
+        <li>Last synced timestamp displayed under header</li>
+        <li>"Syncing…" disabled state on button during operation</li>
+        <li>💬 N from Slack badge in header</li>
+        <li>Removed "Post to Slack" (replaced by read)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── V13 ── -->
+  <div class="section-header">
+    <span class="ver">v13</span>
+    <h2>Export to PDF — Summary Document</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"Export the above conversation in a pdf"</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>Explained that Claude cannot directly generate a PDF but offered to create a structured HTML document that could be printed to PDF. Priyanka confirmed: "yes please do that."</p>
+      <p>Created a full HTML summary document covering: overview, 10 features, 7 design decisions, Slack channels, 17 teams, 15 pre-loaded action items, how-to guide, 13 version history rows, and next steps.</p>
+    </div>
+  </div>
+
+  <!-- ── V14 ── -->
+  <div class="section-header">
+    <span class="ver">v14</span>
+    <h2>This Document — Full Version History</h2>
+  </div>
+  <div class="exchange">
+    <div class="prompt-block">
+      <div class="label">👤 Priyanka's Prompt</div>
+      <p>"Create a whole version document for the above artifact which includes each prompt I gave and your response to it."</p>
+    </div>
+    <div class="response-block">
+      <div class="label">🤖 Claude's Response</div>
+      <p>This document. A complete version history with every user prompt, every Claude response, design decisions made, features built, errors encountered, and how they were resolved — across all 14 versions of the Deriv API V2 Team Tracker.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FINAL STATE SUMMARY -->
+  <div class="section-header">
+    <span class="ver">FINAL</span>
+    <h2>Current State of the Tracker</h2>
+  </div>
+
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:12px;">
+    <tr style="background:#f3f4f6;">
+      <th style="text-align:left;padding:8px 10px;border:1px solid #e5e7eb;">Feature</th>
+      <th style="text-align:left;padding:8px 10px;border:1px solid #e5e7eb;">Status</th>
+      <th style="text-align:left;padding:8px 10px;border:1px solid #e5e7eb;">Notes</th>
+    </tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">Kanban Board</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">5 columns, move cards with one tap</td></tr>
+    <tr style="background:#fafafa;"><td style="padding:7px 10px;border:1px solid #e5e7eb;">By Person View</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">All 12 team members</td></tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">By Type View</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">6 item types</td></tr>
+    <tr style="background:#fafafa;"><td style="padding:7px 10px;border:1px solid #e5e7eb;">Team Scratchpad</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">15 teams, 5 tabs each</td></tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">Paste Transcript</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Claude API parses, auto-assigns owners</td></tr>
+    <tr style="background:#fafafa;"><td style="padding:7px 10px;border:1px solid #e5e7eb;">Inline Editing</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Title (contentEditable), notes, type, priority, owner, status</td></tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">Merge Mode</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Select cards, pick primary title, auto-combine</td></tr>
+    <tr style="background:#fafafa;"><td style="padding:7px 10px;border:1px solid #e5e7eb;">Slack Read Sync</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Auto on open + manual button, reads #project_deriv_api_v2 + #task_api_v2_website</td></tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">Duplicate Detection</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">⚠️ review modal, side-by-side comparison</td></tr>
+    <tr style="background:#fafafa;"><td style="padding:7px 10px;border:1px solid #e5e7eb;">Live Shared Storage</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">window.storage API, persists for all users</td></tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">Filters</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-green">Live</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Owner, status, text search</td></tr>
+    <tr style="background:#fafafa;"><td style="padding:7px 10px;border:1px solid #e5e7eb;">Post to Slack</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-gray">Removed</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Replaced by Slack read. Can be re-added if needed.</td></tr>
+    <tr><td style="padding:7px 10px;border:1px solid #e5e7eb;">By Team View</td><td style="padding:7px 10px;border:1px solid #e5e7eb;"><span class="badge b-orange">Removed in v10</span></td><td style="padding:7px 10px;border:1px solid #e5e7eb;">Removed for size. Can be re-added.</td></tr>
+  </table>
+
+  <div class="footer">
+    Deriv API V2 Team Tracker — Full Version History &nbsp;·&nbsp; Built in Claude Sonnet 4.6 &nbsp;·&nbsp; February 2026<br>
+    Project: API Meetings &amp; Notes &nbsp;·&nbsp; Priyanka Shrivastava &nbsp;·&nbsp; Deriv Group
+  </div>
+
+</div>
+</body>
+</html>

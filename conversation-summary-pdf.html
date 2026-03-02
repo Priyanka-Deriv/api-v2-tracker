@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deriv API V2 Tracker — Build Summary</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 13px; color: #1a1a2e; background: #fff; line-height: 1.6; }
+  .page { max-width: 800px; margin: 0 auto; padding: 48px 40px; }
+
+  /* Header */
+  .header { border-bottom: 3px solid #4f46e5; padding-bottom: 24px; margin-bottom: 32px; }
+  .header h1 { font-size: 24px; font-weight: 800; color: #4f46e5; margin-bottom: 4px; }
+  .header .sub { font-size: 13px; color: #6b7280; }
+  .header .meta { display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap; }
+  .header .meta span { font-size: 11px; background: #f3f4f6; border-radius: 20px; padding: 3px 10px; color: #374151; }
+
+  /* Sections */
+  h2 { font-size: 15px; font-weight: 700; color: #4f46e5; margin: 28px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb; text-transform: uppercase; letter-spacing: 0.05em; }
+  h3 { font-size: 13px; font-weight: 700; color: #111827; margin: 16px 0 6px; }
+  p { margin-bottom: 8px; color: #374151; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 12px; }
+  th { background: #f3f4f6; text-align: left; padding: 8px 10px; font-weight: 700; color: #374151; border: 1px solid #e5e7eb; }
+  td { padding: 7px 10px; border: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* Badges */
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; margin: 1px; }
+  .badge-blue { background: #dbeafe; color: #1d4ed8; }
+  .badge-green { background: #dcfce7; color: #15803d; }
+  .badge-red { background: #fee2e2; color: #b91c1c; }
+  .badge-yellow { background: #fef9c3; color: #a16207; }
+  .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  .badge-gray { background: #f3f4f6; color: #374151; }
+  .badge-orange { background: #ffedd5; color: #c2410c; }
+
+  /* Feature list */
+  .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
+  .feature-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; }
+  .feature-item .icon { font-size: 16px; margin-bottom: 4px; }
+  .feature-item .title { font-weight: 700; font-size: 12px; color: #1e293b; margin-bottom: 2px; }
+  .feature-item .desc { font-size: 11px; color: #64748b; line-height: 1.4; }
+
+  /* Decisions */
+  .decision { background: #faf5ff; border-left: 3px solid #7c3aed; padding: 10px 12px; margin: 8px 0; border-radius: 0 6px 6px 0; }
+  .decision .q { font-size: 11px; color: #7c3aed; font-weight: 700; margin-bottom: 2px; }
+  .decision .a { font-size: 12px; color: #1e293b; }
+
+  /* Action items */
+  .action-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; border: 1px solid #e5e7eb; border-radius: 6px; margin: 5px 0; }
+  .action-item .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+  .dot-high { background: #ef4444; }
+  .dot-med { background: #f59e0b; }
+  .dot-low { background: #22c55e; }
+
+  /* Teams */
+  .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+  .team-chip { background: #f3f4f6; border-radius: 6px; padding: 6px 10px; font-size: 11px; }
+  .team-chip .name { font-weight: 700; color: #1e293b; }
+  .team-chip .poc { color: #6b7280; font-size: 10px; }
+
+  /* Slack info */
+  .channel-row { display: flex; align-items: center; gap-10px; padding: 8px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; margin: 4px 0; }
+
+  /* Print */
+  @media print {
+    body { font-size: 12px; }
+    .page { padding: 20px; }
+    h2 { page-break-after: avoid; }
+    table { page-break-inside: avoid; }
+    .feature-grid { page-break-inside: avoid; }
+  }
+
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 24px 0; }
+  .footer { margin-top: 40px; padding-top: 16px; border-top: 2px solid #e5e7eb; font-size: 11px; color: #9ca3af; text-align: center; }
+  .highlight { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 10px 14px; margin: 10px 0; font-size: 12px; color: #92400e; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h1>Deriv API V2 — Team Tracker</h1>
+    <div class="sub">Build Summary · Conversation Documentation · February 2026</div>
+    <div class="meta">
+      <span>📋 Project: API Meetings &amp; Notes</span>
+      <span>👤 Owner: Priyanka Shrivastava</span>
+      <span>📅 Date: February 28, 2026</span>
+      <span>🔄 Version: 13 iterations</span>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <h2>1. Overview &amp; Purpose</h2>
+  <p>This document summarises the full build conversation for the <strong>Deriv API V2 Live Team Tracker</strong> — a shared, real-time project management tool built inside Claude to help Priyanka and her cross-functional team manage the V1→V2 API migration at Deriv.</p>
+  <p>The tracker was built iteratively over one conversation, evolving from a basic Kanban board into a fully-featured team operations hub with AI-powered transcript parsing, Slack integration, team scratchpads, and live shared storage.</p>
+
+  <div class="highlight">
+    💡 <strong>Core problem solved:</strong> The team works at high speed across 17+ teams with action items emerging from meetings, Slack messages, and stakeholder reviews constantly. No existing tool was lightweight enough to keep up — so a custom live tracker was built directly in Claude.
+  </div>
+
+  <!-- FEATURES BUILT -->
+  <h2>2. Features Built</h2>
+  <div class="feature-grid">
+    <div class="feature-item">
+      <div class="icon">📋</div>
+      <div class="title">Kanban Board</div>
+      <div class="desc">5 columns: Backlog → In Progress → Blocked → In Review → Done. Move cards with one tap.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">👥</div>
+      <div class="title">4 Views</div>
+      <div class="desc">Kanban, By Person, By Type, Team Scratchpad — switch instantly to see what you need.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">⚡</div>
+      <div class="title">Transcript Parsing</div>
+      <div class="desc">Paste any meeting transcript → Claude auto-extracts action items, assigns owners, sets priorities.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">✏️</div>
+      <div class="title">Inline Editing</div>
+      <div class="desc">Click any title or notes field directly on a card to edit. No modal needed for quick fixes.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">🔀</div>
+      <div class="title">Merge Mode</div>
+      <div class="desc">Select 2+ cards and merge duplicates. Pick primary title, notes combine, highest priority wins.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">🗒️</div>
+      <div class="title">Team Scratchpad</div>
+      <div class="desc">Per-team workspace with Open Questions, Decisions, Dependencies (bidirectional), To-dos, Notes.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">💬</div>
+      <div class="title">Slack Sync (Read)</div>
+      <div class="desc">Reads from #project_deriv_api_v2 and #task_api_v2_website. Auto-creates action items from messages mentioning team members or tasks.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">🌐</div>
+      <div class="title">Live Shared Storage</div>
+      <div class="desc">All changes persist and sync across all team members in real-time. No refresh needed.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">⚠️</div>
+      <div class="title">Duplicate Detection</div>
+      <div class="desc">When Slack sync finds a task that may already exist, it flags it for review rather than silently duplicating.</div>
+    </div>
+    <div class="feature-item">
+      <div class="icon">🏷️</div>
+      <div class="title">Item Types</div>
+      <div class="desc">Action Item, Product Decision, Review, Bug/Fix, Documentation, External Request, Stakeholder Input.</div>
+    </div>
+  </div>
+
+  <!-- KEY DECISIONS -->
+  <h2>3. Key Design Decisions Made</h2>
+
+  <div class="decision">
+    <div class="q">Q: How should items be tagged to teams?</div>
+    <div class="a">✅ One primary owner + list of dependent teams. Each item has one team that owns execution, plus any teams that need to act or are impacted.</div>
+  </div>
+  <div class="decision">
+    <div class="q">Q: Which views matter most day-to-day?</div>
+    <div class="a">✅ All four: Kanban by status, By Person, By Type, and Team Scratchpad.</div>
+  </div>
+  <div class="decision">
+    <div class="q">Q: For external teams (SEO, Data, Marketing) — what to track?</div>
+    <div class="a">✅ Request log, current status, POC per team, and whether they're blocked by us or blocking us.</div>
+  </div>
+  <div class="decision">
+    <div class="q">Q: Which fields go wrong most often from transcript parsing?</div>
+    <div class="a">✅ Task title and Notes/context — both now have prominent inline editing with auto-select on click.</div>
+  </div>
+  <div class="decision">
+    <div class="q">Q: When should Slack sync run?</div>
+    <div class="a">✅ Auto on open + manual ↻ Sync Slack button.</div>
+  </div>
+  <div class="decision">
+    <div class="q">Q: What Slack activity creates an action item?</div>
+    <div class="a">✅ Messages mentioning a team member (@name) OR messages that look like tasks/to-dos.</div>
+  </div>
+  <div class="decision">
+    <div class="q">Q: If a task already exists, what happens on Slack sync?</div>
+    <div class="a">✅ Flag as possible duplicate for review — never silently create duplicates.</div>
+  </div>
+
+  <!-- SLACK CHANNELS -->
+  <h2>4. Slack Channels Connected</h2>
+  <table>
+    <tr><th>Channel</th><th>ID</th><th>Purpose</th><th>Sync</th></tr>
+    <tr><td><strong>#project_deriv_api_v2</strong></td><td>C08H3AYCDM3</td><td>Main squad — Ashkan + core team</td><td><span class="badge badge-green">READ + AUTO</span></td></tr>
+    <tr><td><strong>#task_api_v2_website</strong></td><td>C09QFK3SA5V</td><td>Building new api.deriv.com</td><td><span class="badge badge-green">READ + AUTO</span></td></tr>
+    <tr><td>#project-br-api-migration</td><td>C0AE4RPLLCA</td><td>Brazil migration channel</td><td><span class="badge badge-gray">Available</span></td></tr>
+    <tr><td>#need_help_api</td><td>CK42VMYTF</td><td>Developer support &amp; community</td><td><span class="badge badge-gray">Available</span></td></tr>
+    <tr><td>#task_connect_api_v1_v2</td><td>C09948U0SQP</td><td>V1→V2 migration tasks</td><td><span class="badge badge-gray">Available</span></td></tr>
+  </table>
+
+  <p style="font-size:11px;color:#6b7280;">Real Slack user IDs mapped: Priyanka (U070LCMQX19) · Ashkan (U0D22JSDA) · Kirill (U6Y448143) · Matin (U01A0GPH49Z) · Ahmed (U071Q4DHS58) · Muhammad (U75BVGLCE) · Manros (U0D640XCJ) · Prince (U02UCMS0YKH)</p>
+
+  <!-- TEAMS -->
+  <h2>5. Teams in the Tracker</h2>
+  <div class="team-grid">
+    <div class="team-chip"><div class="name">Core API Team</div><div class="poc">Ashkan / Priyanka · internal</div></div>
+    <div class="team-chip"><div class="name">Auth / Backend</div><div class="poc">Kirill, Lepika · internal</div></div>
+    <div class="team-chip"><div class="name">Design (Figma)</div><div class="poc">Manros + Malaysia · internal</div></div>
+    <div class="team-chip"><div class="name">HubSpot / Marketing</div><div class="poc">Abheeshta, Manahel</div></div>
+    <div class="team-chip"><div class="name">BI / Data</div><div class="poc">Prakash, Guru, Harley</div></div>
+    <div class="team-chip"><div class="name">Compliance / Legal</div><div class="poc">Azita</div></div>
+    <div class="team-chip"><div class="name">Partners / Biz Dev</div><div class="poc">Ying Shan, Rakshit</div></div>
+    <div class="team-chip"><div class="name">Support (Intercom)</div><div class="poc">Dmitry</div></div>
+    <div class="team-chip"><div class="name">Country Managers</div><div class="poc">BR / KE / LK regional</div></div>
+    <div class="team-chip"><div class="name">SEO</div><div class="poc">TBD — not yet engaged</div></div>
+    <div class="team-chip"><div class="name">Translations</div><div class="poc">TBD — not yet engaged</div></div>
+    <div class="team-chip"><div class="name">Marketing</div><div class="poc">TBD — not yet engaged</div></div>
+    <div class="team-chip"><div class="name">Content / Docs</div><div class="poc">TBD</div></div>
+    <div class="team-chip"><div class="name">Finance / Revenue</div><div class="poc">TBD</div></div>
+    <div class="team-chip"><div class="name">DevOps / IT Ops</div><div class="poc">Shriv</div></div>
+  </div>
+
+  <!-- PRE-LOADED ACTION ITEMS -->
+  <h2>6. Pre-loaded Action Items (at time of build)</h2>
+  <table>
+    <tr><th>Title</th><th>Owner</th><th>Status</th><th>Priority</th></tr>
+    <tr><td>Add T&amp;C to dashboard before markup push</td><td>Manros</td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Email trigger on new app registration</td><td>Kirill</td><td><span class="badge badge-gray">Backlog</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Remove AI disclaimer from V2</td><td>Priyanka</td><td><span class="badge badge-yellow">In Review</span></td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>Update OAuth consent page design</td><td>Manros</td><td><span class="badge badge-gray">Backlog</span></td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>White-label configurations PR</td><td>Muhammad</td><td><span class="badge badge-yellow">In Review</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Dashboard UI updates</td><td>Manros</td><td><span class="badge badge-red">Blocked</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>PAT with 2FA/OTP on developer dashboard</td><td>Ahmed</td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Dual App ID logic — V1 to V2 edge cases</td><td>Ashkan</td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Developer incentive plan rollout</td><td>Priyanka</td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>V1 sunset communications plan</td><td>Priyanka</td><td><span class="badge badge-gray">Backlog</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>HubSpot tracking on API website</td><td>Priyanka</td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>BI data feed for analytics dashboard</td><td>Priyanka</td><td><span class="badge badge-gray">Backlog</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>SEO setup for developers.deriv.com</td><td>Priyanka</td><td><span class="badge badge-gray">Backlog</span></td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>Portuguese translations for migration docs</td><td>Priyanka</td><td><span class="badge badge-gray">Backlog</span></td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Amy chatbot training content (LLMs.txt)</td><td>Ashkan</td><td><span class="badge badge-blue">In Progress</span></td><td><span class="badge badge-yellow">Medium</span></td></tr>
+  </table>
+
+  <!-- HOW TO USE -->
+  <h2>7. How to Use the Tracker</h2>
+  <table>
+    <tr><th>Action</th><th>How</th></tr>
+    <tr><td>Add an item</td><td>Tap <strong>+ Add</strong> button, fill in title, owner, type, priority</td></tr>
+    <tr><td>Edit title or notes</td><td>Click directly on the text in any card — it becomes editable inline</td></tr>
+    <tr><td>Move a card</td><td>Expand the card (▼ actions) → tap any status button</td></tr>
+    <tr><td>Parse a meeting transcript</td><td>Tap <strong>Transcript</strong> → paste text → Claude extracts items automatically</td></tr>
+    <tr><td>Sync from Slack</td><td>Auto-runs on open. Manual: tap <strong>↻ Sync Slack</strong> button</td></tr>
+    <tr><td>Review Slack duplicates</td><td>Tap <strong>⚠️ dupes</strong> badge → approve or skip each item</td></tr>
+    <tr><td>Merge two tasks</td><td>Tap <strong>Merge</strong> → check cards to combine → tap <strong>Merge N</strong></td></tr>
+    <tr><td>Team meeting prep</td><td>Go to <strong>Scratchpad</strong> view → pick team → add open questions before the call</td></tr>
+    <tr><td>Share with team</td><td>Send the link to this Claude conversation — all changes are live for everyone</td></tr>
+  </table>
+
+  <!-- BUILD ITERATIONS -->
+  <h2>8. Build Iterations</h2>
+  <table>
+    <tr><th>Version</th><th>What was added</th></tr>
+    <tr><td>v1</td><td>Basic project dashboard with charts and Gantt view</td></tr>
+    <tr><td>v2</td><td>Kanban board with item types, statuses, team members</td></tr>
+    <tr><td>v3</td><td>17 teams added, By Team view, primary + dependent team structure</td></tr>
+    <tr><td>v4</td><td>Transcript parsing via Claude API, inline editing, merge mode</td></tr>
+    <tr><td>v5</td><td>Title + notes inline editing improved (auto-select, multiline)</td></tr>
+    <tr><td>v6</td><td>Slack posting (later replaced), Team Scratchpad, live storage</td></tr>
+    <tr><td>v7–9</td><td>Crash fixes — code size reduction to stay within artifact limits</td></tr>
+    <tr><td>v10</td><td>Stable base version confirmed loading on mobile</td></tr>
+    <tr><td>v11</td><td>Slack reading (not posting) — auto-sync on open + manual refresh</td></tr>
+    <tr><td>v12</td><td>Real Slack user IDs mapped, duplicate detection, ⚠️ review modal</td></tr>
+    <tr><td>v13</td><td>This summary document</td></tr>
+  </table>
+
+  <!-- NEXT STEPS -->
+  <h2>9. Suggested Next Steps</h2>
+  <table>
+    <tr><th>Item</th><th>Priority</th></tr>
+    <tr><td>Share conversation link with Ashkan, Muhammad, Manros, Ahmed so they can add and move items</td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Run first Slack sync and review extracted action items from both channels</td><td><span class="badge badge-red">High</span></td></tr>
+    <tr><td>Populate Team Scratchpad with open questions for upcoming BI, Compliance, HubSpot meetings</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>Paste next daily catch-up transcript to test auto-extraction accuracy</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>Identify + confirm POC for TBD teams (SEO, Translations, Finance, Security)</td><td><span class="badge badge-yellow">Medium</span></td></tr>
+    <tr><td>Move completed items to Done regularly to keep the board clean</td><td><span class="badge badge-green">Low</span></td></tr>
+  </table>
+
+  <hr class="divider">
+
+  <div class="footer">
+    Deriv API V2 Team Tracker · Built in Claude (Sonnet 4.6) · February 2026<br>
+    Project: API Meetings &amp; Notes · Owner: Priyanka Shrivastava · Deriv Group
+  </div>
+
+</div>
+</body>
+</html>
